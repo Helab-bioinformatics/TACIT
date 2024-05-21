@@ -15,16 +15,14 @@ library(stats)
 pathToBams1 <- c('./early2cell_h3k4me3/')
 bamFiles1 <- paste(pathToBams1, list.files(pathToBams1), sep='')
 bamFiles1 <- bamFiles1[grep("rmdup.bam", bamFiles1)]
-regions <- "/media/helab/data1/min/00_reference/mm10.2K.windows.bed"
-#regions <- "/media/helab/data1/min/00_reference/mouse_embryo/genes/ZGA/merge_50kb.bed"
+regions <- "./mm10.2K.windows.bed"
 cisTopicObject_h3k4me3 <- createcisTopicObjectFromBAM(bamFiles1, regions, paired = T, project.name='early2cell_h3k4me3', min.cells = 0, min.regions = 0)
 e2_k4me3_counts <- as.matrix(cisTopicObject_h3k4me3@count.matrix)
 
 pathToBams1 <- c('./late2cell_h3k4me3/')
 bamFiles1 <- paste(pathToBams1, list.files(pathToBams1), sep='')
 bamFiles1 <- bamFiles1[grep("rmdup.bam", bamFiles1)]
-regions <- "/media/helab/data1/min/00_reference/mm10.2K.windows.bed"
-#regions <- "/media/helab/data1/min/00_reference/mouse_embryo/genes/ZGA/merge_50kb.bed"
+regions <- "./mm10.2K.windows.bed"
 cisTopicObject_h3k4me3 <- createcisTopicObjectFromBAM(bamFiles1, regions, paired = T, project.name='early2cell_h3k4me3', min.cells = 0, min.regions = 0)
 l2_k4me3_counts <- as.matrix(cisTopicObject_h3k4me3@count.matrix)
 
@@ -114,7 +112,7 @@ ggplot(dat, aes(x="", y=var, fill=group))+
 pathToBams1 <- c('./late2cell_h3k4me3/')
 bamFiles1 <- paste(pathToBams1, list.files(pathToBams1), sep='')
 bamFiles1 <- bamFiles1[grep("rmdup.bam", bamFiles1)]
-regions <- "/media/helab/data1/min/00_reference/mouse_embryo/genes/ZGA/majorZGA.genebody.5kb.bed"
+regions <- "./majorZGA.genebody.5kb.bed"
 cisTopicObject_h3k4me3 <- createcisTopicObjectFromBAM(bamFiles1, regions, paired = T, project.name='early2cell_h3k4me3', min.cells = 0, min.regions = 0)
 h3k4me3_zga_late <- as.matrix(cisTopicObject_h3k4me3@count.matrix)
 h3k4me3_zga_late <- colSums(h3k4me3_zga_late)
@@ -162,9 +160,9 @@ h3k4me3_early <- FindTopFeatures(h3k4me3_early, min.cutoff = 'q0')
 h3k4me3_early <- RunSVD(object = h3k4me3_early, assay = 'peaks', reduction.key = 'LSI_', reduction.name = 'lsi')
 
 pdf("early2cell_h3k4me3_2kbbin_same_diff_embryo_ratio.pdf")
-h3k4me3_early <- RunUMAP(object = h3k4me3_early, reduction = 'lsi', dims = 2:18, n.neighbors = 10L)#或可调试reduction
+h3k4me3_early <- RunUMAP(object = h3k4me3_early, reduction = 'lsi', dims = 2:18, n.neighbors = 10L)
 h3k4me3_early <- FindNeighbors(object = h3k4me3_early, reduction = 'lsi', dims = 2:18)
-h3k4me3_early <- FindClusters(object = h3k4me3_early, algorithm = 3, resolution = 0.3, verbose = FALSE)#或可调试reduction和algorithm
+h3k4me3_early <- FindClusters(object = h3k4me3_early, algorithm = 3, resolution = 0.3, verbose = FALSE)
 DimPlot(object = h3k4me3_early, label = TRUE, pt.size = 2) + NoLegend()
 
 label <- rownames(as.data.frame(h3k4me3_early@active.ident))
@@ -213,7 +211,7 @@ ggplot(dat, aes(x="", y=var, fill=group))+
 pathToBams1 <- c('./early2cell_h3k4me3/')
 bamFiles1 <- paste(pathToBams1, list.files(pathToBams1), sep='')
 bamFiles1 <- bamFiles1[grep("rmdup.bam", bamFiles1)]
-regions <- "/media/helab/data1/min/00_reference/mouse_embryo/genes/ZGA/majorZGA.genebody.5kb.bed"
+regions <- "./majorZGA.genebody.5kb.bed"
 cisTopicObject_h3k4me3 <- createcisTopicObjectFromBAM(bamFiles1, regions, paired = T, project.name='early2cell_h3k4me3', min.cells = 0, min.regions = 0)
 h3k4me3_zga_early <- as.matrix(cisTopicObject_h3k4me3@count.matrix)
 h3k4me3_zga_early <- colSums(h3k4me3_zga_early)
@@ -261,16 +259,14 @@ saveRDS(h3k4me3_late, "h3k4me3_late_2kbbin.rds")
 pathToBams1 <- c('./early_h3k27ac/')
 bamFiles1 <- paste(pathToBams1, list.files(pathToBams1), sep='')
 bamFiles1 <- bamFiles1[grep("rmdup.bam", bamFiles1)]
-regions <- "/media/helab/data1/min/00_reference/mm10.10K.windows.bed"
-#regions <- "/media/helab/data1/min/00_reference/mouse_embryo/genes/ZGA/merge_50kb.bed"
+regions <- "./mm10.10K.windows.bed"
 cisTopicObject_h3k27ac <- createcisTopicObjectFromBAM(bamFiles1, regions, paired = T, project.name='early2cell_h3k27ac', min.cells = 0, min.regions = 0)
 e2_k27ac_counts <- as.matrix(cisTopicObject_h3k27ac@count.matrix)
 
 pathToBams1 <- c('./late2cell_h3k27ac/')
 bamFiles1 <- paste(pathToBams1, list.files(pathToBams1), sep='')
 bamFiles1 <- bamFiles1[grep("rmdup.bam", bamFiles1)]
-regions <- "/media/helab/data1/min/00_reference/mm10.10K.windows.bed"
-#regions <- "/media/helab/data1/min/00_reference/mouse_embryo/genes/ZGA/merge_50kb.bed"
+regions <- "./mm10.10K.windows.bed"
 cisTopicObject_h3k27ac <- createcisTopicObjectFromBAM(bamFiles1, regions, paired = T, project.name='early2cell_h3k27ac', min.cells = 0, min.regions = 0)
 l2_k27ac_counts <- as.matrix(cisTopicObject_h3k27ac@count.matrix)
 
@@ -302,9 +298,9 @@ h3k27ac_late <- FindTopFeatures(h3k27ac_late, min.cutoff = 'q0')
 h3k27ac_late <- RunSVD(object = h3k27ac_late, assay = 'peaks', reduction.key = 'LSI_', reduction.name = 'lsi')
 
 pdf("late2cell_h3k27ac_5kbbin_late_same_diff_embryo_ratio.pdf")
-h3k27ac_late <- RunUMAP(object = h3k27ac_late, reduction = 'lsi', dims = 2:12, n.neighbors = 10L)#或可调试reduction
+h3k27ac_late <- RunUMAP(object = h3k27ac_late, reduction = 'lsi', dims = 2:12, n.neighbors = 10L)
 h3k27ac_late <- FindNeighbors(object = h3k27ac_late, reduction = 'lsi', dims = 2:12)
-h3k27ac_late <- FindClusters(object = h3k27ac_late, algorithm = 3, resolution = 0.3, verbose = FALSE)#或可调试reduction和algorithm
+h3k27ac_late <- FindClusters(object = h3k27ac_late, algorithm = 3, resolution = 0.3, verbose = FALSE)
 DimPlot(object = h3k27ac_late, label = TRUE, pt.size = 2) + NoLegend()
 
 label <- rownames(as.data.frame(h3k27ac_late@active.ident))
@@ -351,7 +347,7 @@ ggplot(dat, aes(x="", y=var, fill=group))+
 pathToBams1 <- c('./late2cell_h3k27ac/')
 bamFiles1 <- paste(pathToBams1, list.files(pathToBams1), sep='')
 bamFiles1 <- bamFiles1[grep("rmdup.bam", bamFiles1)]
-regions <- "/media/helab/data1/min/00_reference/mouse_embryo/genes/ZGA/majorZGA.genebody.5kb.bed"
+regions <- "./majorZGA.genebody.5kb.bed"
 cisTopicObject_h3k27ac <- createcisTopicObjectFromBAM(bamFiles1, regions, paired = T, project.name='late2cell_h3k27ac', min.cells = 0, min.regions = 0)
 h3k27ac_zga_late <- as.matrix(cisTopicObject_h3k27ac@count.matrix)
 h3k27ac_zga_late <- colSums(h3k27ac_zga_late)
@@ -399,9 +395,9 @@ h3k27ac_early <- FindTopFeatures(h3k27ac_early, min.cutoff = 'q0')
 h3k27ac_early <- RunSVD(object = h3k27ac_early, assay = 'peaks', reduction.key = 'LSI_', reduction.name = 'lsi')
 
 pdf("early2cell_h3k27ac_5kbbin_same_diff_embryo_ratio.pdf")
-h3k27ac_early <- RunUMAP(object = h3k27ac_early, reduction = 'lsi', dims = 2:13, n.neighbors = 13L)#或可调试reduction
+h3k27ac_early <- RunUMAP(object = h3k27ac_early, reduction = 'lsi', dims = 2:13, n.neighbors = 13L)
 h3k27ac_early <- FindNeighbors(object = h3k27ac_early, reduction = 'lsi', dims = 2:13)
-h3k27ac_early <- FindClusters(object = h3k27ac_early, algorithm = 3, resolution = 0.3, verbose = FALSE)#或可调试reduction和algorithm
+h3k27ac_early <- FindClusters(object = h3k27ac_early, algorithm = 3, resolution = 0.3, verbose = FALSE)
 DimPlot(object = h3k27ac_early, label = TRUE, pt.size = 2) + NoLegend()
 
 label <- rownames(as.data.frame(h3k27ac_early@active.ident))
@@ -419,10 +415,10 @@ umap[which(umap$UMAP_1 <= 2),3] <- "c2"
 a <- data.frame(embryo=label$x5, cluster=umap$V3)
 library(dplyr)
 same <- a %>%
-  group_by(across(everything())) %>%  # 根据所有列对数据进行分组
-  filter(n() > 1) %>%  # 仅保留在组内出现多于一次的行
+  group_by(across(everything())) %>%  
+  filter(n() > 1) %>%  
   ungroup() 
-same_ration <- nrow(same)/nrow(a)  # 数据框的总行数
+same_ration <- nrow(same)/nrow(a)  
 same_ration
 
 label <- rownames(as.data.frame(h3k27ac_early@active.ident))
@@ -458,7 +454,7 @@ ggplot(dat, aes(x="", y=var, fill=group))+
 pathToBams1 <- c('./early_h3k27ac/')
 bamFiles1 <- paste(pathToBams1, list.files(pathToBams1), sep='')
 bamFiles1 <- bamFiles1[grep("rmdup.bam", bamFiles1)]
-regions <- "/media/helab/data1/min/00_reference/mouse_embryo/genes/ZGA/majorZGA.genebody.5kb.bed"
+regions <- "./majorZGA.genebody.5kb.bed"
 cisTopicObject_h3k27ac <- createcisTopicObjectFromBAM(bamFiles1, regions, paired = T, project.name='early2cell_h3k27ac', min.cells = 0, min.regions = 0)
 h3k27ac_zga_early <- as.matrix(cisTopicObject_h3k27ac@count.matrix)
 h3k27ac_zga_early <- colSums(h3k27ac_zga_early)
