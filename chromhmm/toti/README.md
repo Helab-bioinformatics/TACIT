@@ -4,3 +4,4 @@
 4. A script for the analysis of multivalent states is provided.
 5. Develop a machine learning model to identify classifier bins distinguishing between totipotency and pluripotency using randomforest.R.
 6. Evaluate the similarity of chromatin annotation between cells at 4-cell stage and 2-cell satge using cramerV.R.
+7. Sum up motif results from Homer using motif.R.
