@@ -36,7 +36,7 @@ RNA_count <- as.data.frame(RNA_pseudo@assays[["RNA"]]@counts)
 RNA_count <- RNA_count[which(rowSums(RNA_count) >0),]
 toti <- read.csv("./totipotency.markers.csv", sep = ",", header = F)
 pluri<- read.csv("./pluripotency.markers.csv", sep = ",", header = F)
-ZGA <- read.xlsx("/media/helab/data1/min/00_reference/mouse_embryo/genes/ZGA/MajorZGA_genes.xlsx")
+ZGA <- read.xlsx("./MajorZGA_genes.xlsx")
 ZGA <- na.omit(ZGA$Gene)
 RNA_ZGA <- RNA_count[which(rownames(RNA_count) %in% ZGA),]
 RNA_toti <- RNA_count[which(rownames(RNA_count) %in% toti$V1),]
