@@ -20,7 +20,7 @@ done
 for i in `ls ./00_raw_data/*.umi.fq.gz`
 do 
 base=$(basename $i ".umi.fq.gz")
-/home/haiqing/anaconda3/envs/py2/bin/cutadapt -a CTGTCTCTTATACACATCTGACGCTGCCGACGA -q 20 -O 10  --trim-n  -m 30  --max-n 0.1  -o  ./01_cutadapt/${base}.umi.trim.fq.gz   ./00_raw_data/${base}.umi.fq.gz
+cutadapt -a CTGTCTCTTATACACATCTGACGCTGCCGACGA -q 20 -O 10  --trim-n  -m 30  --max-n 0.1  -o  ./01_cutadapt/${base}.umi.trim.fq.gz   ./00_raw_data/${base}.umi.fq.gz
 done
 
 #### mapping by Hisat2 
@@ -28,7 +28,7 @@ done
 for i in `ls ./01_cutadapt/*.umi.trim.fq.gz`
 do 
 base=$(basename $i ".umi.trim.fq.gz")
-/media/helab/data1/00_public/software/hisat2-2.1.0/hisat2 -x /media/helab/data1/00_public/database/Hisat2/hisat2_ref/mm10/mm10 -p 10 -U ./01_cutadapt/${base}.umi.trim.fq.gz -S ./02_mapping/${base}_align.mm10.sam 2>./02_mapping/${base}.mm10.align.log
+hisat2 -x /media/helab/data1/00_public/database/Hisat2/hisat2_ref/mm10/mm10 -p 10 -U ./01_cutadapt/${base}.umi.trim.fq.gz -S ./02_mapping/${base}_align.mm10.sam 2>./02_mapping/${base}.mm10.align.log
 #hisat2 -x /media/helab/data1/00_public/database/Hisat2/hisat2_ref/hg19/hg19 -p 20 -U ./01_cutadapt/${base}.umi.trim.fq.gz -S ./02_mapping/${base}_align.hg19.sam 2>./02_mapping/${base}.hg19.align.log
 done
 
@@ -36,24 +36,22 @@ done
 for i in `ls ./02_mapping/*_align.mm10.sam`
 do 
 base=$(basename $i "_align.mm10.sam")
-#python /media/helab/data1/00_public/software/HTSeq/count.py  -s no -f sam -a 10 -o ./03_count/${base}_align.hg19.umi.sort.sam ./02_mapping/${base}_align.hg19.sam /media/helab/data1/00_public/database/Hisat2/hisat2_gtf/refGene.hg19.gtf >./03_count/${base}.dexseq.txt  
-#python /media/helab/data1/00_public/software/HTSeq/count.py  -s no -f sam -a 10 -o ./03_count/${base}_align.mm10.umi.sort.sam ./02_mapping/${base}_align.mm10.sam /media/helab/data1/00_public/database/Hisat2/hisat2_gtf/mm10_RefSeq.transcript.gtf >./03_count/${base}.dexseq.txt  
-/home/haiqing/anaconda3/envs/py2/bin/python2 /media/helab/data1/00_public/software/HTSeq/count.transcript.py  -s no -f sam -a 10 -o ./03_count/${base}_align.mm10.umi.sort.sam ./02_mapping/${base}_align.mm10.sam /media/helab/data1/00_public/database/Hisat2/hisat2_gtf/mm10_Refseq.transcript.uniq2.gtf >./03_count/${base}.dexseq.txt  
+python2 /media/helab/data1/00_public/software/HTSeq/count.transcript.py  -s no -f sam -a 10 -o ./03_count/${base}_align.mm10.umi.sort.sam ./02_mapping/${base}_align.mm10.sam /media/helab/data1/00_public/database/Hisat2/hisat2_gtf/mm10_Refseq.transcript.uniq2.gtf >./03_count/${base}.dexseq.txt  
 done
 
 ####  stat-umi
 for i in `ls ./03_count/*_align.mm10.umi.sort.sam`
 do 
 base=$(basename $i "_align.mm10.umi.sort.sam")
-/home/haiqing/anaconda3/envs/py2/bin/python2 ./02_UMI_HTseq.py ./03_count/${base}_align.mm10.umi.sort.sam  ./04_umi/${base}.umi.txt
+python2 ./02_UMI_HTseq.py ./03_count/${base}_align.mm10.umi.sort.sam  ./04_umi/${base}.umi.txt
 done
 
 
-#### calculate counts and TPM of each cell #记得修改mm10_tpm.py里的路径
+#### calculate counts and TPM of each cell #录脟碌脙脨脼赂脛mm10_tpm.py脌茂碌脛脗路戮露
 for i in `ls ./03_count/*_align.mm10.umi.sort.sam`
 do 
 base=$(basename $i "_align.mm10.umi.sort.sam")
-/home/haiqing/anaconda3/envs/py2/bin/python2 mm10_tpm.py ./04_umi/${base}.umi.txt ./04_umi/${base}.umi_tpm_gene.xls
+python2 mm10_tpm.py ./04_umi/${base}.umi.txt ./04_umi/${base}.umi_tpm_gene.xls
 done
 
 #### generate count and TPM matrix
