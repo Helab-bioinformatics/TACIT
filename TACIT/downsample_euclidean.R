@@ -27,13 +27,9 @@ label <- as.data.frame(cell.names)
 label[grep("zygote",label[,1]),2] <- "zygote"
 label[grep("2cell",label[,1]),2] <- "2cell"
 label[grep("4cell",label[,1]),2] <- "4cell"
-label[grep("E2.0",label[,1]),2] <- "8cell"
-label[grep("8cell",label[,1]),2] <- "8cell"
-label[grep("E2.5",label[,1]),2] <- "morula"
-label[grep("morula",label[,1]),2] <- "morula"
-label[grep("E3.0",label[,1]),2] <- "blastocyst"
-label[grep("E3.5",label[,1]),2] <- "blastocyst"
-label[grep("blastocyst",label[,1]),2] <- "blastocyst"
+label[grep("E2.0|8cell",label[,1]),2] <- "8cell"
+label[grep("E2.5|morula",label[,1]),2] <- "morula"
+label[grep("E3.0|E3.5|blastocyst",label[,1]),2] <- "blastocyst"
 cisTopicObject@cell.data$stage <- label[,2]
 
 #clustering
@@ -94,13 +90,9 @@ label <- as.data.frame(label)
 label[grep("zygote",label[,1]),2] <- "zygote"
 label[grep("2cell",label[,1]),2] <- "2cell"
 label[grep("4cell",label[,1]),2] <- "4cell"
-label[grep("E2.0",label[,1]),2] <- "8cell"
-label[grep("8cell",label[,1]),2] <- "8cell"
-label[grep("E2.5",label[,1]),2] <- "morula"
-label[grep("morula",label[,1]),2] <- "morula"
-label[grep("E3.0",label[,1]),2] <- "E3.0"
-label[grep("E3.5",label[,1]),2] <- "blastocyst"
-label[grep("blastocyst",label[,1]),2] <- "blastocyst"
+label[grep("E2.0|8cell",label[,1]),2] <- "8cell"
+label[grep("E2.5|morula",label[,1]),2] <- "morula"
+label[grep("E3.0|E3.5|blastocyst",label[,1]),2] <- "blastocyst"
 h3k27ac@meta.data$group.ident <- as.factor(label[,2])
 
 pdf("./h3k27ac_umap.pdf")
