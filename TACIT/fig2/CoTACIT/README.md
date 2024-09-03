@@ -1,4 +1,4 @@
-Split DNA fragments for different histone modifications from CoTACIT data:
+### Split DNA fragments for different histone modifications from CoTACIT data:
 1. The suffix of the raw sequence file should be "_1.fq.gz" and "_2.fq.gz". 
 2. Modify T7 and T5 barcodes in "01_T7_split.sh" and "03_T5_split.sh".
 3. Copy all files here to the directory where the raw sequence files are located.
