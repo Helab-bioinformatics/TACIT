@@ -1,4 +1,4 @@
-################################ state expression for Figure 2d ########################################
+################################ state expression for Figure 2f ########################################
 
 setwd("/media/helab/data1/min/02_tacit/03_early_stage/20231229_allStage_integration/")
 
