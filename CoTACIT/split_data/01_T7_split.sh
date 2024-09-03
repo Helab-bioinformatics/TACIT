@@ -1,1 +1,0 @@
-for i in `ls *_cut27.R2.fq.gz`; do base=$(basename $i "_cut27.R2.fq.gz"); mkdir ${base}.R2/; perl ./splitbarcode0bp.pl ${base}_cut27.R2.fq.gz 0 AAGTAT GACTCG TGGCAG ${base}.R2/T7_${base}_1.2.fq.gz ${base}.R2/T7_${base}_2.2.fq.gz ${base}.R2/T7_${base}_3.2.fq.gz ${base}.R2/T7_${base}_noid.2.fq.gz; done
