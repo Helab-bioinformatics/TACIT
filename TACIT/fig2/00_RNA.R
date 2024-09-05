@@ -193,8 +193,123 @@ ggplot(label,mapping = aes(x = V2, y = ZGA))+
   theme_bw()
 dev.off()
 
+################################################# generate RNA pseudo cells ###############################################
 
+############################################# RNA ########################################################
+RNA <- readRDS("./all_RNA.rds")
 
+#### monocle for defining pseudo cells #####
+library(monocle3)
+set.seed(1234)
+data <- GetAssayData(RNA, assay = 'RNA', slot = 'counts')
+label <- as.data.frame(colnames(RNA))
+label[grep("zygote",label[,1]),2] <- "zygote"
+label[grep("2cell",label[,1]),2] <- "late2cell"
+label[grep("early2cell",label[,1]),2] <- "early2cell"
+label[grep("4cell",label[,1]),2] <- "4cell"
+label[grep("8cell",label[,1]),2] <- "8cell"
+label[grep("morula",label[,1]),2] <- "Morula"
+label[grep("earlyblast",label[,1]),2] <- "earlyblast"
+label[grep("lateblast",label[,1]),2] <- "lateblast"
+
+colnames(label) <- c("ID", "stage")
+rownames(label) <- label$ID
+cds <- new_cell_data_set(data,cell_metadata = label)
+cds <- preprocess_cds(cds, num_dim = 50)
+cds <- reduce_dimension(cds, preprocess_method = "PCA")
+p1 <- plot_cells(cds, reduction_method="UMAP", color_cells_by="stage", cell_size = 0.8) + ggtitle('cds.umap')
+
+cds.embed <- cds@int_colData$reducedDims$UMAP
+int.embed <- Embeddings(RNA, reduction = "umap")
+int.embed <- int.embed[rownames(cds.embed),]
+cds@int_colData$reducedDims$UMAP <- int.embed
+p2 <- plot_cells(cds, reduction_method="UMAP", color_cells_by="stage", cell_size = 0.8) + ggtitle('int.umap')
+pdf("RNA_trajectory.pdf")
+p1
+p2
+
+## trajectory
+cds <- cluster_cells(cds)
+cds <- learn_graph(cds)
+cds <- order_cells(cds)
+plot_cells(cds, color_cells_by = "stage", label_groups_by_cluster=FALSE, label_leaves=TRUE, label_branch_points=TRUE,  graph_label_size=3, cell_size = 1.2)
+plot_cells(cds, color_cells_by = "pseudotime", label_groups_by_cluster=FALSE, label_leaves=TRUE, label_branch_points=TRUE,  graph_label_size=3, cell_size = 1.2)
+dev.off()
+
+pseudo_order <- sort(cds@principal_graph_aux@listData$UMAP$pseudotime)
+pseudo_order <- as.data.frame(pseudo_order)
+saveRDS(cds, "./RNA_trajectory.rds")
+
+RNA_counts <- as.matrix(RNA@assays[["RNA"]]@counts)
+RNA_counts <- RNA_counts[,rownames(pseudo_order)]
+
+a <- rep(1:80, each=5)
+write.table(a,"./scRNA/tmp.txt", quote = F, sep = "\t")
+RNA_counts_zygote <- RNA_counts[,grep("zygote", colnames(RNA_counts))]
+RNA_counts_2cell <- RNA_counts[,grep("2cell", colnames(RNA_counts))]
+RNA_counts_4cell <- RNA_counts[,grep("4cell", colnames(RNA_counts))]
+RNA_counts_8cell <- RNA_counts[,grep("8cell", colnames(RNA_counts))]
+RNA_counts_morula <- RNA_counts[,grep("morula", colnames(RNA_counts))]
+RNA_counts_blasto <- RNA_counts[,grep("blasto", colnames(RNA_counts))]
+
+# pesudo-cells, merge every 5 cells, for each stage one by one
+dim(RNA_counts_zygote)#16619   136
+dat3 <- matrix(1:315761,ncol=19)
+id <- seq(from=1,to=95,by=5)
+n=1
+for (i in id) {
+  m=i+4
+  dat3[,n] <- rowSums(RNA_counts_zygote[,i:m])
+  n=n+1
+}
+dat3 <- as.data.frame(dat3)
+rownames(dat3) <- rownames(RNA_counts_zygote)
+colnames(dat3) <- paste0("zygote_pseudo_", 1:ncol(dat3))
+pseudo_zygote <- dat3 
+
+RNA_pseudo <- cbind(pseudo_zygote, pseudo_2cell, pseudo_4cell, pseudo_8cell, pseudo_morula, pseudo_blasto)
+
+RNA_pseudo <- CreateSeuratObject(counts = RNA_pseudo, project = "RNA", min.cells = 3, min.features = 3000)
+RNA_pseudo[["percent.mt"]] <- PercentageFeatureSet(RNA_pseudo, pattern = "^MT-")
+pdf("RNA_pseudo.pdf")
+VlnPlot(RNA_pseudo, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 1)
+plot1 <- FeatureScatter(RNA_pseudo, feature1 = "nCount_RNA", feature2 = "percent.mt")
+plot2 <- FeatureScatter(RNA_pseudo, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+plot1 
+plot2
+RNA_pseudo <- NormalizeData(RNA_pseudo)
+RNA_pseudo <- FindVariableFeatures(RNA_pseudo, nfeatures = 8000)
+RNA_pseudo <- ScaleData(RNA_pseudo, vars.to.regress = c("nFeature_RNA", "percent.mito"))
+RNA_pseudo <- RunPCA(RNA_pseudo, npcs = 15)
+RNA_pseudo <- RunUMAP(RNA_pseudo, dims = 1:15, reduction = 'pca',n.neighbors = 5L)
+RNA_pseudo <- FindNeighbors(RNA_pseudo, dims = 1:15, reduction = "pca")
+RNA_pseudo <- FindClusters(RNA_pseudo, resolution = 0.5)
+DimPlot(RNA_pseudo, reduction = "umap", label = TRUE, pt.size = 2)
+DimPlot(RNA_pseudo, reduction = "pca", label = TRUE, pt.size = 2)
+dev.off()
+
+label <- rownames(as.data.frame(RNA_pseudo@active.ident))
+label <- as.data.frame(label)
+label[grep("zygote",label[,1]),2] <- "zygote"
+label[grep("2cell",label[,1]),2] <- "late2cell"
+label[grep("4cell",label[,1]),2] <- "4cell"
+label[grep("8cell",label[,1]),2] <- "8cell"
+label[grep("morula",label[,1]),2] <- "Morula"
+label[grep("blast",label[,1]),2] <- "blast"
+
+label[,3] <- RNA_pseudo@meta.data$seurat_clusters
+RNA_pseudo@meta.data$group.ident <- as.factor(label[,2])
+RNA_pseudo@meta.data$ID <- as.factor(label[,1])
+
+pdf("RNA_pseudo_stage.pdf")
+DimPlot(RNA_pseudo, reduction = "umap", label = TRUE, pt.size = 2)
+DimPlot(object = RNA_pseudo, reduction = "umap",group.by = "group.ident" ,label = TRUE, pt.size = 2)
+DimPlot(RNA_pseudo, reduction = "pca", label = TRUE, pt.size = 2)
+DimPlot(object = RNA_pseudo, reduction = "pca",group.by = "group.ident" ,label = TRUE, pt.size = 2)
+dev.off()
+
+saveRDS(RNA_pseudo, "./scRNA/RNA_pseudo.rds")
+write.table(RNA_pseudo, "./scRNA/RNA_speudo_count.txt", quote = F, sep = "\t")
 
 
 
