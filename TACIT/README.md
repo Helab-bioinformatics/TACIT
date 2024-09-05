@@ -8,8 +8,8 @@ tacit.sh - a script for analyzing TACIT data incuding mapping to mm10 reference 
 2. Analyze sequencing data for each histone modification using tacit.sh.
 
 ## scRNA-seq analysis
-1. Split raw sequening data for each single cell based on oligo dT barcodes, with scripts in the scRNA/00_split single cells folder.
-2. Analyze sequencing data including cutting adaptor, mapping to mm10 reference genome, and calculating TPM, with scripts in the scRNA/01_scRNA-QC folder.
+1. Split raw sequening data for each single cell based on oligo dT barcodes, with scripts in the scRNA/00_split_single_cells folder.
+2. Analyze sequencing data including cutting adaptor, mapping to mm10 reference genome, and calculating TPM, with scripts in the scRNA/01_qc folder.
 
 ## ChromHMM analysis
 1. ChromHMM manual: https://ernstlab.biolchem.ucla.edu/ChromHMM/
