@@ -1,4 +1,4 @@
-setwd("/media/helab/data1/min/02_tacit/03_early_stage/coTarget_early2cell/cicero_h3k4me3_h3k27ac/")
+setwd("./cicero_h3k4me3_h3k27ac/")
 
 ## pseudotime analysis
 library(cicero)
@@ -10,7 +10,6 @@ library(Seurat)
 library(Signac)
 library(tidyr)
 set.seed(225)
-
 
 pathToBams1 <- c('./merge_h3k4me3_h3k27ac/')
 bamFiles1 <- paste(pathToBams1, list.files(pathToBams1), sep='')
@@ -127,7 +126,7 @@ library(rtracklayer)
 # download and unzip
 # temp <- tempfile()
 # download.file("ftp://ftp.ensembl.org/pub/release-65/gtf/mus_musculus/Mus_musculus.NCBIM37.65.gtf.gz", temp)
-gene_anno <- readGFF("/media/helab/data1/min/00_reference/Mus_musculus.GRCm38.95.gtf")
+gene_anno <- readGFF("./Mus_musculus.GRCm38.95.gtf")
 # rename some columns to match requirements
 gene_anno$chromosome <- paste0("chr", gene_anno$seqid)
 gene_anno$gene <- gene_anno$gene_id
@@ -177,7 +176,7 @@ plot_connections(C2_conns, "chr7", 10495543, 11587976,
 dev.off()
 
 ####################### promoter and enhancer pairs ##############################
-setwd("/media/helab/data1/min/02_tacit/03_early_stage/coTarget_early2cell/cicero_h3k4me3_h3k27ac/ZGA_related/")
+setwd("./cicero_h3k4me3_h3k27ac/ZGA_related/")
 conns <- read.csv("C1C2_conns_cutoff0.2.txt", sep = "\t")
 h3k4me3 <- read.csv("../h3k4me3_early2cell-q0.05.5kbMerge.bed", sep = "\t", header = F)
 h3k4me3$marker <- "h3k4me3"
@@ -223,7 +222,7 @@ regions <- "ZGA_inte_conns_peak2.bed"
 cisTopicObject <- createcisTopicObjectFromBAM(bamFiles1, regions, paired = T, project.name='E2.5_h3k27ac',min.cells = 0, min.regions = 0)
 peak2 <- as.matrix(cisTopicObject@count.matrix) 
 
-##由于会自动去除重复，所以再进行扩；
+##
 peak1_mat <- matrix(1:310770, ncol=90)#3453
 peak1_mat[,1] <- promoters$Peak1
 for (i in 1:nrow(peak1_mat)) {
@@ -374,7 +373,7 @@ for (i in 1:nrow(peak2_mat)) {
 }
 peak2_mat <- as.data.frame(peak2_mat)
 colnames(peak2_mat) <- c("loci", colnames(peak2))
-####前面peak2_mat的部分不用修改
+####
 peak2_mat <- peak2_mat[order,]
 peak2_mat <- peak2_mat[,c("loci", pseudo_order$ID)]
 down_reads <- peak2_mat[,2:90]
@@ -458,7 +457,7 @@ for (i in 1:nrow(peak2_mat)) {
 }
 peak2_mat <- as.data.frame(peak2_mat)
 colnames(peak2_mat) <- c("loci", colnames(peak2))
-####前面peak2_mat的部分不用修改
+####
 peak2_mat <- peak2_mat[order,]
 peak2_mat <- peak2_mat[,c("loci", pseudo_order$ID)]
 noChange_reads <- peak2_mat[,2:90]
@@ -584,7 +583,6 @@ pheatmap(RNA,
          cellheight=0.2,
          color = colorRampPalette(c("#3b6bab","#6bb2dc","#e6d28d","#ac2728"))(500))
 dev.off()
-
 
 noChange_anno <- read.csv("noChange_promoter_enhancer_pairs_order_anno.txt", sep = "\t")
 colnames(noChange_anno) <- c("order", colnames(noChange_anno[,2:ncol(noChange_anno)]))
@@ -915,36 +913,3 @@ pheatmap(RNA,
          cellheight=0.2,
          color = colorRampPalette(c("#3b6bab","#6bb2dc","#e6d28d","#ac2728"))(500))
 dev.off()
-
-#	one of "euclidean", "maximum", "manhattan", "canberra", "binary" or "minkowski". Any unambiguous substring can be given.
-#	one of "ward.D", "ward.D2", "single", "complete", "average" (= UPGMA), "mcquitty" (= WPGMA), "median" (= WPGMC) or "centroid" (= UPGMC).
-
-
-# C1_links <- ConnectionsToLinks(conns = C1_conns, ccans = C1_ccans,  sep = c(":", "-"))
-# head(C1_links)
-# C2_links <- ConnectionsToLinks(conns = C2_conns, ccans = C2_ccans,  sep = c(":", "-"))
-# head(C2_links)
-# 
-# Links(C1) <- C1_links
-# 
-# ##top co-accessible links 
-# C1_high_chr <- C1_links@seqnames[which(C1_links@elementMetadata@listData[["score"]] >= 0.8),]
-# C2_high_chr <- C2_links@seqnames[which(C2_links@elementMetadata@listData[["score"]] >= 0.6),]
-# C1_high <- C1_links@ranges[which(C1_links@elementMetadata@listData[["score"]] >= 0.8),]
-# C2_high <- C2_links@ranges[which(C2_links@elementMetadata@listData[["score"]] >= 0.6),]
-# head(C1_high_chr@lengths)
-# tail(C2_high)
-# C2_high_chr
-# head(C1_high)
-# write.csv(C2_high,"C2_high_144_links.csv")
-# 
-# normal_chr14_link <- normal_links@ranges[which(normal_links@seqnames=='chr14'),]
-# View(normal_chr3_link[grep('138',normal_chr3_link),])
-# 
-# pdf("link_SNAI1_normal.pdf",height = 3)
-# link_plot <- LinkPlot(
-#   object = normal_tropho,
-#   region = c("chr20-49936808-50034714"),min.cutoff = 0.1
-# )
-# link_plot
-# dev.off()
