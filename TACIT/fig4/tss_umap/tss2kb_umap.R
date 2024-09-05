@@ -1,15 +1,12 @@
-setwd("/media/helab/data1/min/02_tacit/03_early_stage/20231229_allStage_integration/07_fig_3/02_tss_umap/")
-
 library(tidyr)
 library(matrixStats)
 
 
 #################################### enhancer ###################################
-########### 对应上位置信息 ############
 rm(list = ls())
 library(tidyr)
 filtered_mat_rou <- read.csv("./all_enhancer_tss2kb_posterior_selected.txt", sep = "\t")
-#mm10 <- read.csv("/media/helab/data1/min/02_tacit/03_early_stage/20230105_allStage_integration/08_repressive/chrhmm_200bin_loci.txt", sep = "\t", header = F)
+mm10 <- read.csv("./chrhmm_200bin_loci.txt", sep = "\t", header = F)
 
 loci <- data.frame(loci=rownames(filtered_mat_rou), delete=filtered_mat_rou$deleted_rows)
 loci$chr <- mm10$V1[match(loci$loci, mm10$V4)]
@@ -41,9 +38,9 @@ enhancer <- RunSVD(object = enhancer, assay = 'peaks', reduction.key = 'LSI_',re
 
 pdf("./enhancer_tss2kb_200bin_20240125.pdf")
 DepthCor(enhancer)
-enhancer <- RunUMAP(object = enhancer, reduction = 'lsi', n.neighbors = 5L, dims = c(1:7))#或可调试reduction
+enhancer <- RunUMAP(object = enhancer, reduction = 'lsi', n.neighbors = 5L, dims = c(1:7))
 enhancer <- FindNeighbors(object = enhancer, reduction = 'lsi', dims = c(1:7))
-enhancer <- FindClusters(object = enhancer, algorithm = 1, resolution = 1, verbose = FALSE)#或可调试reduction和algorithm
+enhancer <- FindClusters(object = enhancer, algorithm = 1, resolution = 1, verbose = FALSE)
 enhancer@meta.data[["ID"]] <- colnames(enhancer)
 DimPlot(object = enhancer, label = TRUE, pt.size = 2) + NoLegend()
 DimPlot(object = enhancer, group.by = "orig.ident" ,label = TRUE, pt.size = 2) 
@@ -55,7 +52,7 @@ da_peaks <- FindMarkers(
   group.by = "orig.ident",
   ident.1 = c("C2"), 
   ident.2 = c("C8"),
-  min.pct = 0.5,#设置越小，找的差异peaks越多，但也越不显著，均取前面部分即可。
+  min.pct = 0.5,
   test.use = 'wilcox'
 )
 
@@ -71,28 +68,25 @@ enhancer <- RunSVD(object = enhancer, assay = 'peaks', reduction.key = 'LSI_',re
 
 pdf("./enhancer_tss2kb_top_20240125.pdf")
 DepthCor(enhancer)
-enhancer <- RunUMAP(object = enhancer, reduction = 'lsi', n.neighbors = 10L, dims = c(1:6))#或可调试reduction
+enhancer <- RunUMAP(object = enhancer, reduction = 'lsi', n.neighbors = 10L, dims = c(1:6))
 enhancer <- FindNeighbors(object = enhancer, reduction = 'lsi', dims = c(1:6))
-enhancer <- FindClusters(object = enhancer, algorithm = 1, resolution = 1, verbose = FALSE)#或可调试reduction和algorithm
+enhancer <- FindClusters(object = enhancer, algorithm = 1, resolution = 1, verbose = FALSE)
 enhancer@meta.data[["ID"]] <- colnames(enhancer)
 DimPlot(object = enhancer, label = TRUE, pt.size = 2) + NoLegend()
 DimPlot(object = enhancer, group.by = "orig.ident" ,label = TRUE, pt.size = 2) 
 DimPlot(object = enhancer, group.by = "ID" ,label = TRUE, pt.size = 2) 
 dev.off()
 
-
 top <- separate(top, top, c("v1", "v2", "v3"), sep = "-")
 write.table(format(top,scientific=FALSE), "./enhancer_tss2kb_C2vsC8_diff_20230622.bed", sep = "\t", quote = F, col.names = F, row.names = F)
 
 saveRDS(enhancer, "./enhancer_tss2kb_top_20240125.rds")
 
-
 #################################### promoter ###################################
-########### 对应上位置信息 ############
 rm(list = ls())
 library(tidyr)
 filtered_mat_rou <- read.csv("./all_promoter_tss2kb_posterior_selected.txt", sep = "\t")
-mm10 <- read.csv("/media/helab/data1/min/02_tacit/03_early_stage/20230105_allStage_integration/08_repressive/chrhmm_200bin_loci.txt", sep = "\t", header = F)
+mm10 <- read.csv("./chrhmm_200bin_loci.txt", sep = "\t", header = F)
 
 loci <- data.frame(loci=rownames(filtered_mat_rou), delete=filtered_mat_rou$deleted_rows)
 loci$chr <- mm10$V1[match(loci$loci, mm10$V4)]
@@ -113,9 +107,9 @@ promoter <- RunSVD(object = promoter, assay = 'peaks', reduction.key = 'LSI_',re
 
 pdf("./promoter_tss2kb_200bin_20240125.pdf")
 DepthCor(promoter)
-promoter <- RunUMAP(object = promoter, reduction = 'lsi', n.neighbors = 5L, dims = c(2:5))#或可调试reduction
+promoter <- RunUMAP(object = promoter, reduction = 'lsi', n.neighbors = 5L, dims = c(2:5))
 promoter <- FindNeighbors(object = promoter, reduction = 'lsi', dims = c(2:5))
-promoter <- FindClusters(object = promoter, algorithm = 1, resolution = 1, verbose = FALSE)#或可调试reduction和algorithm
+promoter <- FindClusters(object = promoter, algorithm = 1, resolution = 1, verbose = FALSE)
 promoter@meta.data[["ID"]] <- colnames(promoter)
 DimPlot(object = promoter, label = TRUE, pt.size = 2) + NoLegend()
 DimPlot(object = promoter, group.by = "orig.ident" ,label = TRUE, pt.size = 2) 
@@ -127,7 +121,7 @@ da_peaks <- FindMarkers(
   group.by = "orig.ident",
   ident.1 = c("C2"), 
   ident.2 = c("C8"),
-  min.pct = 0.5,#设置越小，找的差异peaks越多，但也越不显著，均取前面部分即可。
+  min.pct = 0.5,
   test.use = 'wilcox'
 )
 
@@ -143,9 +137,9 @@ promoter <- RunSVD(object = promoter, assay = 'peaks', reduction.key = 'LSI_',re
 
 pdf("./promoter_tss2kb_top_20240125.pdf")
 DepthCor(promoter)
-promoter <- RunUMAP(object = promoter, reduction = 'lsi', n.neighbors = 10L, dims = c(1:5))#或可调试reduction
+promoter <- RunUMAP(object = promoter, reduction = 'lsi', n.neighbors = 10L, dims = c(1:5))
 promoter <- FindNeighbors(object = promoter, reduction = 'lsi', dims = c(1:5))
-promoter <- FindClusters(object = promoter, algorithm = 1, resolution = 1, verbose = FALSE)#或可调试reduction和algorithm
+promoter <- FindClusters(object = promoter, algorithm = 1, resolution = 1, verbose = FALSE)
 promoter@meta.data[["ID"]] <- colnames(promoter)
 DimPlot(object = promoter, label = TRUE, pt.size = 2) + NoLegend()
 DimPlot(object = promoter, group.by = "orig.ident" ,label = TRUE, pt.size = 2) 
@@ -157,12 +151,11 @@ write.table(format(top,scientific=FALSE), "./promoter_tss2kb_C2vsC8_diff_2023062
 
 saveRDS(promoter, "./promoter_tss2kb_top_20240125.rds")
 
-
 ############################################ transcription #########################################
 rm(list = ls())
 library(tidyr)
 filtered_mat_rou <- read.csv("./all_transcription_tss2kb_posterior_selected.txt", sep = "\t")
-mm10 <- read.csv("/media/helab/data1/min/02_tacit/03_early_stage/20230105_allStage_integration/08_repressive/chrhmm_200bin_loci.txt", sep = "\t", header = F)
+mm10 <- read.csv("./chrhmm_200bin_loci.txt", sep = "\t", header = F)
 
 loci <- data.frame(loci=rownames(filtered_mat_rou), delete=filtered_mat_rou$deleted_rows)
 loci$chr <- mm10$V1[match(loci$loci, mm10$V4)]
@@ -194,9 +187,9 @@ transcription <- RunSVD(object = transcription, assay = 'peaks', reduction.key =
 
 pdf("./transcription_tss2kb_200bin_20240125.pdf")
 DepthCor(transcription)
-transcription <- RunUMAP(object = transcription, reduction = 'lsi', n.neighbors = 10L, dims = c(1:6))#或可调试reduction
+transcription <- RunUMAP(object = transcription, reduction = 'lsi', n.neighbors = 10L, dims = c(1:6))
 transcription <- FindNeighbors(object = transcription, reduction = 'lsi', dims = c(1:6))
-transcription <- FindClusters(object = transcription, algorithm = 1, resolution = 1, verbose = FALSE)#或可调试reduction和algorithm
+transcription <- FindClusters(object = transcription, algorithm = 1, resolution = 1, verbose = FALSE)
 transcription@meta.data[["ID"]] <- colnames(transcription)
 DimPlot(object = transcription, label = TRUE, pt.size = 2) + NoLegend()
 DimPlot(object = transcription, group.by = "orig.ident" ,label = TRUE, pt.size = 2) 
@@ -208,7 +201,7 @@ da_peaks <- FindMarkers(
   group.by = "orig.ident",
   ident.1 = c("C2"), 
   ident.2 = c("C8"),
-  min.pct = 0.5,#设置越小，找的差异peaks越多，但也越不显著，均取前面部分即可。
+  min.pct = 0.5,
   test.use = 'wilcox'
 )
 
@@ -225,9 +218,9 @@ transcription <- RunSVD(object = transcription, assay = 'peaks', reduction.key =
 
 pdf("./transcription_tss2kb_200bin_top_20240125.pdf")
 DepthCor(transcription)
-transcription <- RunUMAP(object = transcription, reduction = 'lsi', n.neighbors = 10L, dims = c(1:6))#或可调试reduction
+transcription <- RunUMAP(object = transcription, reduction = 'lsi', n.neighbors = 10L, dims = c(1:6))
 transcription <- FindNeighbors(object = transcription, reduction = 'lsi', dims = c(1:6))
-transcription <- FindClusters(object = transcription, algorithm = 1, resolution = 1, verbose = FALSE)#或可调试reduction和algorithm
+transcription <- FindClusters(object = transcription, algorithm = 1, resolution = 1, verbose = FALSE)
 transcription@meta.data[["ID"]] <- colnames(transcription)
 DimPlot(object = transcription, label = TRUE, pt.size = 2) + NoLegend()
 DimPlot(object = transcription, group.by = "orig.ident" ,label = TRUE, pt.size = 2) 
@@ -240,12 +233,10 @@ write.table(format(top,scientific=FALSE), "./transcription_tss2kb_C2vsC8_diff_20
 
 saveRDS(transcription, "./transcription_tss2kb_top_20240125.rds")
 
-
 ################################### h3k27me3 ###################################
-########### 对应上位置信息 ############
 rm(list = ls())
 filtered_mat_rou <- read.csv("./all_heterochromatin_h3k27me3_tss2kb_posterior_selected.txt", sep = "\t")
-mm10 <- read.csv("/media/helab/data1/min/02_tacit/03_early_stage/20230105_allStage_integration/08_repressive/chrhmm_200bin_loci.txt", sep = "\t", header = F)
+mm10 <- read.csv("./chrhmm_200bin_loci.txt", sep = "\t", header = F)
 
 loci <- data.frame(loci=rownames(filtered_mat_rou), delete=filtered_mat_rou$deleted_rows)
 loci$chr <- mm10$V1[match(loci$loci, mm10$V4)]
@@ -277,9 +268,9 @@ h3k27me3 <- RunSVD(object = h3k27me3, assay = 'peaks', reduction.key = 'LSI_',re
 
 pdf("./h3k27me3_tss2kb_200bin_20240125.pdf")
 DepthCor(h3k27me3)
-h3k27me3 <- RunUMAP(object = h3k27me3, reduction = 'lsi', n.neighbors = 10L, dims = c(1:5))#或可调试reduction
+h3k27me3 <- RunUMAP(object = h3k27me3, reduction = 'lsi', n.neighbors = 10L, dims = c(1:5))
 h3k27me3 <- FindNeighbors(object = h3k27me3, reduction = 'lsi', dims = c(1:5))
-h3k27me3 <- FindClusters(object = h3k27me3, algorithm = 1, resolution = 1, verbose = FALSE)#或可调试reduction和algorithm
+h3k27me3 <- FindClusters(object = h3k27me3, algorithm = 1, resolution = 1, verbose = FALSE)
 h3k27me3@meta.data[["ID"]] <- colnames(h3k27me3)
 DimPlot(object = h3k27me3, label = TRUE, pt.size = 2) + NoLegend()
 DimPlot(object = h3k27me3, group.by = "orig.ident" ,label = TRUE, pt.size = 2) 
@@ -291,7 +282,7 @@ da_peaks <- FindMarkers(
   group.by = "orig.ident",
   ident.1 = c("C2"), 
   ident.2 = c("C8"),
-  min.pct = 0.5,#设置越小，找的差异peaks越多，但也越不显著，均取前面部分即可。
+  min.pct = 0.5,
   test.use = 'wilcox'
 )
 
@@ -317,20 +308,16 @@ DimPlot(object = h3k27me3, group.by = "orig.ident" ,label = TRUE, pt.size = 2)
 DimPlot(object = h3k27me3, group.by = "ID" ,label = TRUE, pt.size = 2) 
 dev.off()
 
-
 top <- separate(top, top, c("v1", "v2", "v3"), sep = "-")
 write.table(format(top,scientific=FALSE), "./h3k27me3_tss2kb_C2vsC8_diff_20230622.bed", sep = "\t", quote = F, col.names = F, row.names = F)
 
 saveRDS(h3k27me3, "./h3k27me3_tss2kb_top_20240125.rds")
 
-
-
 ################################### h3k9me3 ###################################
-########### 对应上位置信息 ############
 rm(list = ls())
 library(tidyr)
 filtered_mat_rou <- read.csv("./all_heterochromatin_h3k9me3_tss2kb_posterior_selected.txt", sep = "\t")
-mm10 <- read.csv("/media/helab/data1/min/02_tacit/03_early_stage/20230105_allStage_integration/08_repressive/chrhmm_200bin_loci.txt", sep = "\t", header = F)
+mm10 <- read.csv("./chrhmm_200bin_loci.txt", sep = "\t", header = F)
 
 loci <- data.frame(loci=rownames(filtered_mat_rou), delete=filtered_mat_rou$deleted_rows)
 loci$chr <- mm10$V1[match(loci$loci, mm10$V4)]
@@ -362,9 +349,9 @@ h3k9me3 <- RunSVD(object = h3k9me3, assay = 'peaks', reduction.key = 'LSI_',redu
 
 pdf("./h3k9me3_tss2kb_200bin_20240125.pdf")
 DepthCor(h3k9me3)
-h3k9me3 <- RunUMAP(object = h3k9me3, reduction = 'lsi', n.neighbors = 10L, dims = c(1:5))#或可调试reduction
+h3k9me3 <- RunUMAP(object = h3k9me3, reduction = 'lsi', n.neighbors = 10L, dims = c(1:5))
 h3k9me3 <- FindNeighbors(object = h3k9me3, reduction = 'lsi', dims = c(1:5))
-h3k9me3 <- FindClusters(object = h3k9me3, algorithm = 1, resolution = 1, verbose = FALSE)#或可调试reduction和algorithm
+h3k9me3 <- FindClusters(object = h3k9me3, algorithm = 1, resolution = 1, verbose = FALSE)
 h3k9me3@meta.data[["ID"]] <- colnames(h3k9me3)
 DimPlot(object = h3k9me3, label = TRUE, pt.size = 2) + NoLegend()
 DimPlot(object = h3k9me3, group.by = "orig.ident" ,label = TRUE, pt.size = 2) 
@@ -376,7 +363,7 @@ da_peaks <- FindMarkers(
   group.by = "orig.ident",
   ident.1 = c("C2"), 
   ident.2 = c("C8"),
-  min.pct = 0.5,#设置越小，找的差异peaks越多，但也越不显著，均取前面部分即可。
+  min.pct = 0.5,
   test.use = 'wilcox'
 )
 
@@ -392,9 +379,9 @@ h3k9me3 <- RunSVD(object = h3k9me3, assay = 'peaks', reduction.key = 'LSI_',redu
 
 pdf("./h3k9me3_tss2kb_top_20240125.pdf")
 DepthCor(h3k9me3)
-h3k9me3 <- RunUMAP(object = h3k9me3, reduction = 'lsi', n.neighbors = 5L, dims = c(1:5))#或可调试reduction
+h3k9me3 <- RunUMAP(object = h3k9me3, reduction = 'lsi', n.neighbors = 5L, dims = c(1:5))
 h3k9me3 <- FindNeighbors(object = h3k9me3, reduction = 'lsi', dims = c(1:5))
-h3k9me3 <- FindClusters(object = h3k9me3, algorithm = 1, resolution = 1, verbose = FALSE)#或可调试reduction和algorithm
+h3k9me3 <- FindClusters(object = h3k9me3, algorithm = 1, resolution = 1, verbose = FALSE)
 h3k9me3@meta.data[["ID"]] <- colnames(h3k9me3)
 DimPlot(object = h3k9me3, label = TRUE, pt.size = 2) + NoLegend()
 DimPlot(object = h3k9me3, group.by = "orig.ident" ,label = TRUE, pt.size = 2) 
@@ -406,14 +393,11 @@ write.table(format(top,scientific=FALSE), "./h3k9me3_tss2kb_C2vsC8_diff_20230622
 
 saveRDS(h3k9me3, "./h3k9me3_tss2kb_200bp_top_20240125.rds")
 
-
-
 ################################### heterochromatin ###################################
-########### 对应上位置信息 ############
 rm(list = ls())
 library(tidyr)
 filtered_mat_rou <- read.csv("./all_heterochromatin_tss2kb_posterior_selected.txt", sep = "\t")
-mm10 <- read.csv("/media/helab/data1/min/02_tacit/03_early_stage/20230105_allStage_integration/08_repressive/chrhmm_200bin_loci.txt", sep = "\t", header = F)
+mm10 <- read.csv("./chrhmm_200bin_loci.txt", sep = "\t", header = F)
 
 loci <- data.frame(loci=rownames(filtered_mat_rou), delete=filtered_mat_rou$deleted_rows)
 loci$chr <- mm10$V1[match(loci$loci, mm10$V4)]
@@ -446,9 +430,9 @@ heterochromatin <- RunSVD(object = heterochromatin, assay = 'peaks', reduction.k
 
 pdf("./heterochromatin_tss2kb_200bin_20240125.pdf")
 DepthCor(heterochromatin)
-heterochromatin <- RunUMAP(object = heterochromatin, reduction = 'lsi', n.neighbors = 5L, dims = c(1:5))#或可调试reduction
+heterochromatin <- RunUMAP(object = heterochromatin, reduction = 'lsi', n.neighbors = 5L, dims = c(1:5))
 heterochromatin <- FindNeighbors(object = heterochromatin, reduction = 'lsi', dims = c(1:5))
-heterochromatin <- FindClusters(object = heterochromatin, algorithm = 1, resolution = 1, verbose = FALSE)#或可调试reduction和algorithm
+heterochromatin <- FindClusters(object = heterochromatin, algorithm = 1, resolution = 1, verbose = FALSE)
 heterochromatin@meta.data[["ID"]] <- colnames(heterochromatin)
 DimPlot(object = heterochromatin, label = TRUE, pt.size = 2) + NoLegend()
 DimPlot(object = heterochromatin, group.by = "orig.ident" ,label = TRUE, pt.size = 2) 
@@ -460,7 +444,7 @@ da_peaks <- FindMarkers(
   group.by = "orig.ident",
   ident.1 = c("C2"), 
   ident.2 = c("C8"),
-  min.pct = 0.05,#设置越小，找的差异peaks越多，但也越不显著，均取前面部分即可。
+  min.pct = 0.05,
   test.use = 'wilcox'
 )
 
@@ -476,20 +460,17 @@ heterochromatin <- RunSVD(object = heterochromatin, assay = 'peaks', reduction.k
 
 pdf("./heterochromatin_tss2kb_top_20240125.pdf")
 DepthCor(heterochromatin)
-heterochromatin <- RunUMAP(object = heterochromatin, reduction = 'lsi', n.neighbors = 10L, dims = c(1:5))#或可调试reduction
+heterochromatin <- RunUMAP(object = heterochromatin, reduction = 'lsi', n.neighbors = 10L, dims = c(1:5))
 heterochromatin <- FindNeighbors(object = heterochromatin, reduction = 'lsi', dims = c(1:5))
-heterochromatin <- FindClusters(object = heterochromatin, algorithm = 1, resolution = 1, verbose = FALSE)#或可调试reduction和algorithm
+heterochromatin <- FindClusters(object = heterochromatin, algorithm = 1, resolution = 1, verbose = FALSE)
 heterochromatin@meta.data[["ID"]] <- colnames(heterochromatin)
 DimPlot(object = heterochromatin, label = TRUE, pt.size = 2) + NoLegend()
 DimPlot(object = heterochromatin, group.by = "orig.ident" ,label = TRUE, pt.size = 2) 
 DimPlot(object = heterochromatin, group.by = "ID" ,label = TRUE, pt.size = 2) 
 dev.off()
 
-
 top <- separate(top, top, c("v1", "v2", "v3"), sep = "-")
 write.table(format(top,scientific=FALSE), "./heterochromatin_tss2kb_C2vsC8_diff_20230622.bed", sep = "\t", quote = F, col.names = F, row.names = F)
 
 saveRDS(heterochromatin, "./heterochromatin_tss2kb_top_20240125.rds")
-
-
 
