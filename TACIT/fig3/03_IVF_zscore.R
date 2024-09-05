@@ -1,4 +1,3 @@
-setwd("/media/helab/helab-7/LM_all/20240427_IVF_embryo_TACIT/IVF_embryo_TACIT")
 
 ####################################################################################################################
 ######################################### compare ZGA scare between the two cells ##################################
@@ -10,7 +9,7 @@ label <- separate(label, label, c("x1","x2","x3","x4","x5","x6","x7", "x8"), sep
 label <- label[,c("label", "x5", "x6")]
 label$zga_score <- as.numeric(h3k4me3_early@meta.data[["zga.signal.nor"]])
 
-####### 调整ZGA score ######
+####### ZGA score ######
 path <- "/media/helab/data1/min/00_reference/mouse_embryo/genes/ZGA/test/"
 bed <- list.files(path)
 k4_early_fc_titration <- vector("list", length(bed))
@@ -30,7 +29,7 @@ for (i in 1:length(bed)) {
   h3k4me3_all_counts <- as.numeric(h3k4me3_early@meta.data[["nCount_peaks"]])
   label$zga_signal <- h3k4me3_zga_early/h3k4me3_all_counts
   
-  embryos <- unique(label$x5) # 统计同一个胚胎的两个细胞的zga score fold change.
+  embryos <- unique(label$x5) 
   k4_early_fc <- c()
   for (j in 1:length(embryos)) {
     dat_select <- label[grep(embryos[j], label$x5),]
@@ -44,7 +43,7 @@ for (i in 1:length(bed)) {
   dif_portion <- c(dif_portion, dif_portion_tmp)
 }
 names(dif_portion) <- bed
-dif_portion_k4_early <- dif_portion # MajorZGA_genes_tss.bed 或者 majorZGA.genebody.bed 上两个细胞差异最大
+dif_portion_k4_early <- dif_portion # MajorZGA_genes_tss.bed or majorZGA.genebody.bed 
 
 ###### use MajorZGA_genes_tss.bed #####
 label <- rownames(as.data.frame(h3k4me3_early@active.ident))
@@ -67,7 +66,7 @@ h3k4me3_zga_early <- h3k4me3_zga_early[which(names(h3k4me3_zga_early) %in% cell_
 h3k4me3_all_counts <- as.numeric(h3k4me3_early@meta.data[["nCount_peaks"]])
 label$zga_signal <- h3k4me3_zga_early/h3k4me3_all_counts
 
-embryos <- unique(label$x5) # 统计同一个胚胎的两个细胞的zga score fold change.
+embryos <- unique(label$x5) # 
 dim <- length(embryos) * 4
 k4_early_zga <- matrix(1:dim, ncol = 4)
 k4_early_zga <- as.data.frame(k4_early_zga)
@@ -83,18 +82,15 @@ k4_early_zga$low_zga <- pmin(k4_early_zga$cell1, k4_early_zga$cell2)
 k4_early_zga$high_zga <- pmax(k4_early_zga$cell1, k4_early_zga$cell2)
 
 library(ggplot2)
-# 假设你的数据框是df，有ID列标识每行
 df <- data.frame(ID = k4_early_zga$embryo, A = k4_early_zga$low_zga, B = k4_early_zga$high_zga)
-# 将数据从宽格式转换为长格式
 df_long <- reshape2::melt(df, id.vars = "ID", measure.vars = c("A", "B"))
 pdf("./h3k4me3_early_c1_c2_zga_score.pdf")
 ggplot(df_long, aes(x = variable, y = value, group = ID)) +
-  geom_line(color = "lightgray") +  # 连接线
-  geom_point() +  # 可选，增加点
-  theme_bw() +  # 选择一个简洁的主题
-  stat_summary(fun = mean, geom = "line", aes(group = 1), color = "black", size = 1.2) +  # 平均值连线
-  stat_compare_means(comparisons = list(c("A", "B"))) +  # 统计显著性
-  labs(x = "组别", y = "数值大小", title = "AB两列数值的连接线图")
+  geom_line(color = "lightgray") + 
+  geom_point() + 
+  theme_bw() +  
+  stat_summary(fun = mean, geom = "line", aes(group = 1), color = "black", size = 1.2) + 
+  stat_compare_means(comparisons = list(c("A", "B"))) 
 dev.off()
 
   
@@ -126,7 +122,7 @@ for (i in 1:length(bed)) {
   h3k4me3_all_counts <- as.numeric(h3k4me3_late@meta.data[["nCount_peaks"]])
   label$zga_signal <- h3k4me3_zga_late/h3k4me3_all_counts
   
-  embryos <- unique(label$x5) # 统计同一个胚胎的两个细胞的zga score fold change.
+  embryos <- unique(label$x5) #
   k4_late_fc <- c()
   for (j in 1:length(embryos)) {
     dat_select <- label[grep(embryos[j], label$x5),]
@@ -140,7 +136,7 @@ for (i in 1:length(bed)) {
   dif_portion <- c(dif_portion, dif_portion_tmp)
 }
 names(dif_portion) <- bed
-dif_portion_k4_late <- dif_portion #majorZGA.genebody.5kb.bed, majorZGA.genebody.bed, MajorZGA_genes_tss5kb.bed, MajorZGA_genes_tss.bed均可达到52.8%
+dif_portion_k4_late <- dif_portion #majorZGA.genebody.5kb.bed, majorZGA.genebody.bed, MajorZGA_genes_tss5kb.bed, MajorZGA_genes_tss.bed
 
 
 ###### use MajorZGA_genes_tss.bed #####
@@ -164,7 +160,7 @@ h3k4me3_zga_late <- h3k4me3_zga_late[which(names(h3k4me3_zga_late) %in% cell_id$
 h3k4me3_all_counts <- as.numeric(h3k4me3_late@meta.data[["nCount_peaks"]])
 label$zga_signal <- h3k4me3_zga_late/h3k4me3_all_counts
 
-embryos <- unique(label$x5) # 统计同一个胚胎的两个细胞的zga score fold change.
+embryos <- unique(label$x5) # 
 dim <- length(embryos) * 4
 k4_late_zga <- matrix(1:dim, ncol = 4)
 k4_late_zga <- as.data.frame(k4_late_zga)
@@ -180,18 +176,15 @@ k4_late_zga$low_zga <- pmin(k4_late_zga$cell1, k4_late_zga$cell2)
 k4_late_zga$high_zga <- pmax(k4_late_zga$cell1, k4_late_zga$cell2)
 
 library(ggplot2)
-# 假设你的数据框是df，有ID列标识每行
 df <- data.frame(ID = k4_late_zga$embryo, A = k4_late_zga$low_zga, B = k4_late_zga$high_zga)
-# 将数据从宽格式转换为长格式
 df_long <- reshape2::melt(df, id.vars = "ID", measure.vars = c("A", "B"))
 pdf("./h3k4me3_late_c1_c2_zga_score.pdf")
 ggplot(df_long, aes(x = variable, y = value, group = ID)) +
-  geom_line(color = "lightgray") +  # 连接线
-  geom_point() +  # 可选，增加点
-  theme_bw() +  # 选择一个简洁的主题
-  stat_summary(fun = mean, geom = "line", aes(group = 1), color = "black", size = 1.2) +  # 平均值连线
-  stat_compare_means(comparisons = list(c("A", "B"))) +  # 统计显著性
-  labs(x = "组别", y = "数值大小", title = "AB两列数值的连接线图")
+  geom_line(color = "lightgray") + 
+  geom_point() + 
+  theme_bw() + 
+  stat_summary(fun = mean, geom = "line", aes(group = 1), color = "black", size = 1.2) + 
+  stat_compare_means(comparisons = list(c("A", "B")))
 dev.off()
 
   
@@ -204,7 +197,7 @@ label <- separate(label, label, c("x1","x2","x3","x4","x5","x6","x7", "x8"), sep
 label <- label[,c("label", "x5", "x6")]
 label$zga_score <- as.numeric(h3k27ac_early@meta.data[["zga.signal.nor"]])
 
-# 调整ZGA score
+# ZGA score
 path <- "/media/helab/data1/min/00_reference/mouse_embryo/genes/ZGA/tss/"
 bed <- list.files(path)
 k27_early_fc_titration <- list()
@@ -224,7 +217,7 @@ for (i in 1:length(bed)) {
   h3k27ac_all_counts <- as.numeric(h3k27ac_early@meta.data[["nCount_peaks"]])
   label$zga_signal <- h3k27ac_zga_early/h3k27ac_all_counts
   
-  embryos <- unique(label$x5) # 统计同一个胚胎的两个细胞的zga score fold change.
+  embryos <- unique(label$x5) # 
   k27_early_fc <- c()
   for (j in 1:length(embryos)) {
     dat_select <- label[grep(embryos[j], label$x5),]
@@ -262,8 +255,7 @@ h3k27ac_zga_early <- h3k27ac_zga_early[which(names(h3k27ac_zga_early) %in% cell_
 h3k27ac_all_counts <- as.numeric(h3k27ac_early@meta.data[["nCount_peaks"]])
 label$zga_signal <- h3k27ac_zga_early/h3k27ac_all_counts
 
-embryos <- unique(label$x5) # 统计同一个胚胎的两个细胞的zga score fold change.
-dim <- length(embryos) * 4
+embryos <- unique(label$x5) # 
 k27_early_zga <- matrix(1:dim, ncol = 4)
 k27_early_zga <- as.data.frame(k27_early_zga)
 for (j in 1:length(embryos)) {
@@ -278,18 +270,15 @@ k27_early_zga$low_zga <- pmin(k27_early_zga$cell1, k27_early_zga$cell2)
 k27_early_zga$high_zga <- pmax(k27_early_zga$cell1, k27_early_zga$cell2)
 
 library(ggplot2)
-# 假设你的数据框是df，有ID列标识每行
 df <- data.frame(ID = k27_early_zga$embryo, A = k27_early_zga$low_zga, B = k27_early_zga$high_zga)
-# 将数据从宽格式转换为长格式
 df_long <- reshape2::melt(df, id.vars = "ID", measure.vars = c("A", "B"))
 pdf("./h3k27me3_early_c1_c2_zga_score.pdf")
 ggplot(df_long, aes(x = variable, y = value, group = ID)) +
-  geom_line(color = "lightgray") +  # 连接线
-  geom_point() +  # 可选，增加点
-  theme_bw() +  # 选择一个简洁的主题
-  stat_summary(fun = mean, geom = "line", aes(group = 1), color = "black", size = 1.2) +  # 平均值连线
-  stat_compare_means(comparisons = list(c("A", "B"))) +  # 统计显著性
-  labs(x = "组别", y = "数值大小", title = "AB两列数值的连接线图")
+  geom_line(color = "lightgray") +  # 
+  geom_point() +  # 
+  theme_bw() +  #
+  stat_summary(fun = mean, geom = "line", aes(group = 1), color = "black", size = 1.2) +  # 
+  stat_compare_means(comparisons = list(c("A", "B"))) 
 dev.off()
 
   
@@ -301,7 +290,7 @@ label <- separate(label, label, c("x1","x2","x3","x4","x5","x6","x7", "x8"), sep
 label <- label[,c("label", "x5", "x6")]
 label$zga_score <- as.numeric(h3k27ac_late@meta.data[["zga.signal.nor"]])
 
-# 调整ZGA score
+# ZGA score
 path <- "/media/helab/data1/min/00_reference/mouse_embryo/genes/ZGA/test/"
 bed <- list.files(path)
 k27_late_fc_titration <- list()
@@ -321,7 +310,7 @@ for (i in 1:length(bed)) {
   h3k27ac_all_counts <- as.numeric(h3k27ac_late@meta.data[["nCount_peaks"]])
   label$zga_signal <- h3k27ac_zga_late/h3k27ac_all_counts
   
-  embryos <- unique(label$x5) # 统计同一个胚胎的两个细胞的zga score fold change.
+  embryos <- unique(label$x5) # 
   k27_late_fc <- c()
   for (j in 1:length(embryos)) {
     dat_select <- label[grep(embryos[j], label$x5),]
@@ -359,7 +348,7 @@ h3k27ac_zga_late <- h3k27ac_zga_late[which(names(h3k27ac_zga_late) %in% cell_id$
 h3k27ac_all_counts <- as.numeric(h3k27ac_late@meta.data[["nCount_peaks"]])
 label$zga_signal <- h3k27ac_zga_late/h3k27ac_all_counts
 
-embryos <- unique(label$x5) # 统计同一个胚胎的两个细胞的zga score fold change.
+embryos <- unique(label$x5) # 
 dim <- length(embryos) * 4
 k27_late_zga <- matrix(1:dim, ncol = 4)
 k27_late_zga <- as.data.frame(k27_late_zga)
@@ -375,18 +364,15 @@ k27_late_zga$low_zga <- pmin(k27_late_zga$cell1, k27_late_zga$cell2)
 k27_late_zga$high_zga <- pmax(k27_late_zga$cell1, k27_late_zga$cell2)
 
 library(ggplot2)
-# 假设你的数据框是df，有ID列标识每行
 df <- data.frame(ID = k27_late_zga$embryo, A = k27_late_zga$low_zga, B = k27_late_zga$high_zga)
-# 将数据从宽格式转换为长格式
 df_long <- reshape2::melt(df, id.vars = "ID", measure.vars = c("A", "B"))
 pdf("./h3k27me3_late_c1_c2_zga_score.pdf")
 ggplot(df_long, aes(x = variable, y = value, group = ID)) +
-  geom_line(color = "lightgray") +  # 连接线
-  geom_point() +  # 可选，增加点
-  stat_summary(fun = mean, geom = "line", aes(group = 1), color = "black", size = 1.2) +  # 平均值连线
-  stat_compare_means(comparisons = list(c("A", "B"))) +  # 统计显著性
-  theme_bw() +  # 选择一个简洁的主题
-  labs(x = "组别", y = "数值大小", title = "AB两列数值的连接线图")
+  geom_line(color = "lightgray") +  
+  geom_point() +  
+  stat_summary(fun = mean, geom = "line", aes(group = 1), color = "black", size = 1.2) +
+  stat_compare_means(comparisons = list(c("A", "B"))) +  
+  theme_bw() 
 dev.off()
 
 write.table(k4_early_zga, "h3k4me3_early_zga_score.txt", sep = "\t", quote = F, row.names = F)
@@ -394,13 +380,3 @@ write.table(k4_late_zga, "h3k4me3_late_zga_score.txt", sep = "\t", quote = F, ro
 write.table(k27_early_zga, "h3k27ac_early_zga_score.txt", sep = "\t", quote = F, row.names = F)
 write.table(k27_late_zga, "h3k27ac_late_zga_score.txt", sep = "\t", quote = F, row.names = F)
 
-
-# library(openxlsx)
-# zga <- read.xlsx("/media/helab/data1/min/00_reference/mouse_embryo/genes/ZGA/MajorZGA_genes.xlsx")
-# zga <- zga$Gene
-# zga <- na.omit(zga)
-# ref <- read.csv("/media/helab/data1/min/00_reference/mm10_Refseq.transcript.uniq2.2.gtf", sep = "\t", header = F)
-# ref$up <- ref$V4 -20000
-# ref$down <- ref$V5 +20000
-# zga_tss <- ref[which(ref$V9 %in% zga),]
-# write.table(zga_tss[,c("V1", "up", "down")], "/media/helab/data1/min/00_reference/mouse_embryo/genes/ZGA/MajorZGA_genes_tss_20kb.bed",sep = "\t", quote = F, col.names = F, row.names = F)
