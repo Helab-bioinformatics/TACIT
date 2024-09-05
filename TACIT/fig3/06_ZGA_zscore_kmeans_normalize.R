@@ -10,7 +10,7 @@ down_k27 <- read.csv("./down_promoter_enhancer_h3k27ac.txt", sep = "\t")
 shared_k27 <- read.csv("./shared_promoter_enhancer_h3k27ac.txt", sep = "\t")
 
 
-### 读取depth，因为cicero计算的时候会normalize library size
+### depth for normalization
 k4me3_id <- read.csv("/media/helab/data3/min/TACIT/coTarget_early2cell/01_h3k4me3/rename/rmdupID.txt", header = F)
 k4me3_depth <- read.csv("/media/helab/data3/min/TACIT/coTarget_early2cell/01_h3k4me3/rename/rmdup.txt", header = F)
 k27ac_id <- read.csv("/media/helab/data3/min/TACIT/coTarget_early2cell/02_h3k27ac/rename/rmdupID.txt", header = F)
@@ -21,7 +21,7 @@ k27ac_depth <- data.frame(cells=k27ac_id, depth=k27ac_depth)
 rownames(k4me3_depth) <- paste0(k4me3_depth$V1, ".bam")
 rownames(k27ac_depth) <- paste0(k27ac_depth$V1, ".bam")
 
-### 也看看是否需要normalize peak长度
+### normalize peak length
 library(tidyr)
 up <- separate(up, loci, c("loci", "min"), sep = ":")
 up <- separate(up, min, c("up", "down"), sep = "-")
@@ -89,17 +89,13 @@ for (i in 1:69) {
 }
 rownames(dat2) <- rownames(up_k27_nor)
 
-######## 计算全局的z-score,而非row-sacle #####
-
-# 计算整个矩阵的平均值和标准差
+######## Z-score #####
 mean_value <- mean(dat1)
 std_dev <- sd(as.vector(dat1))
-# 计算Z-score矩阵
 z_score_matrix_1 <- (dat1 - mean_value) / std_dev
 
 mean_value <- mean(dat2)
 std_dev <- sd(as.vector(dat2))
-# 计算Z-score矩阵
 z_score_matrix_2 <- (dat2 - mean_value) / std_dev
 
 dat1_tmp2 <- scale(dat1)
@@ -215,17 +211,13 @@ for (i in 1:69) {
 }
 rownames(dat2) <- rownames(down_k27_nor)
 
-######## 计算全局的z-score,而非row-sacle #####
-
-# 计算整个矩阵的平均值和标准差
+######## z-score #####
 mean_value <- mean(dat1)
 std_dev <- sd(as.vector(dat1))
-# 计算Z-score矩阵
 z_score_matrix_1 <- (dat1 - mean_value) / std_dev
 
 mean_value <- mean(dat2)
 std_dev <- sd(as.vector(dat2))
-# 计算Z-score矩阵
 z_score_matrix_2 <- (dat2 - mean_value) / std_dev
 
 dat1_tmp2 <- scale(dat1)
@@ -299,9 +291,7 @@ ggplot(dat, aes(x=pseuo))+
         panel.grid.major = element_blank())  #????ʾ??????
 dev.off()
 
-
-
-##################################### shared #################################
+#################################### shared #################################
 shared <- read.csv("./shared_promoter_enhancer_h3k4me3.txt", sep = "\t")
 shared_k27 <- read.csv("./shared_promoter_enhancer_h3k27ac.txt", sep = "\t")
 
@@ -362,16 +352,13 @@ dev.off()
 dat1_share_k4 <- dat1[rownames(m.kmeans),]
 dat2_share_k27 <- dat2[rownames(m.kmeans),]
 
-######################### 计算全局的z-score,而非row-sacle ###################################
-# 计算整个矩阵的平均值和标准差
+##### z-score #####
 mean_value <- mean(dat1)
 std_dev <- sd(as.vector(dat1))
-# 计算Z-score矩阵
 z_score_matrix_1 <- (dat1 - mean_value) / std_dev
 
 mean_value <- mean(dat2)
 std_dev <- sd(as.vector(dat2))
-# 计算Z-score矩阵
 z_score_matrix_2 <- (dat2 - mean_value) / std_dev
 
 dat1_tmp2 <- scale(dat1)
@@ -434,19 +421,16 @@ dev.off()
 
 
 
-####################################### 对整个heatmap进行全局的 zscore ##################
+####################################### zscore for all ##################
 all_k4 <- rbind(dat1_down_k4, dat1_up_k4, dat1_share_k4)
 all_k27 <- rbind(dat2_down_k27, dat2_up_k27, dat2_share_k27)
 
-# 计算整个矩阵的平均值和标准差
 mean_value <- mean(all_k4)
 std_dev <- sd(as.vector(all_k4))
-# 计算Z-score矩阵
 z_score_matrix_k4 <- (all_k4 - mean_value) / std_dev
 
 mean_value <- mean(all_k27)
 std_dev <- sd(as.vector(all_k27))
-# 计算Z-score矩阵
 z_score_matrix_k27 <- (all_k27 - mean_value) / std_dev
 
 z_score_matrix_k4[z_score_matrix_k4 >3] <- 3
@@ -468,7 +452,7 @@ pheatmap( z_score_matrix_k27,
           color = colorRampPalette(c("#0561c6","#f4e4b8","#e2904b","#ac2728"))(500))
 dev.off() 
 
-###分开up,down和share来画
+# plot
 pdf("./ZGA_zscore_kmeans/all_promoter_enhancer_h3k4me3_h3k27ac_cocluster_kmeans_h3k4me3_zscore_1.pdf")
 pheatmap( z_score_matrix_k4[1:513,], 
           cluster_rows = F, cluster_cols = F, 
@@ -572,17 +556,4 @@ pheatmap(RNA_counts_select[1513:1671,],
          cellheight=0.2,
          color = colorRampPalette(c("#2a628c","#3d8ec1","#f2ee75","#f9fa02"))(500))
 dev.off()
-
-
-
-
-
-
-
-
-
-
-
-
-
 
