@@ -1,7 +1,7 @@
 rm(list = ls()) 
 Sys.setenv(R_MAX_NUM_DLLS=999) 
 options(stringsAsFactors = F) 
-################################# downsampling and calculate Euclidean distance #################################
+################################# calculate Euclidean distance #################################
 library(cisTopic)
 library(ggplot2)
 library(ggpubr)
@@ -10,7 +10,7 @@ library(Seurat)
 library(Signac)
 
 
-######################### h3k4me3 ##########################
+######################### h3k4me3 (as an example) ##########################
 setwd("./downsample")
 pathToBams1 <- c('./')
 bamFiles1 <- paste(pathToBams1, list.files(pathToBams1), sep='')
@@ -71,7 +71,7 @@ ggplot(dat,mapping = aes(x = group, y = distance))+
 dev.off()
 
 
-######## h3k27ac #################
+################################################# h3k27ac (as an example) #########################################################
 setwd("./downsample")
 pathToBams1 <- c('./')
 bamFiles1 <- paste(pathToBams1, list.files(pathToBams1), sep='')
