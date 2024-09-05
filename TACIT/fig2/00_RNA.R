@@ -1,42 +1,12 @@
 ########################scRNA-seq datasets comparision #################################
-
 setwd("/media/helab/data1/min/02_tacit/03_early_stage/20231229_allStage_integration/scRNA")
 
-##### smart-seq3 #####
-zygote <- read.csv("/media/helab/data3/min/TACIT/20231108_scRNA/s1820g01136_BJCH-20231106-L-01-2023-11-072014/zygote/zygote_all/04_umi/HTSeq.TPM.txt", sep = "\t",header = TRUE, row.names = 1)
-C2 <- read.csv("/media/helab/data3/min/TACIT/20231108_scRNA/s1820g01136_BJCH-20231106-L-01-2023-11-072024/2cell/04_umi/HTSeq.TPM.txt", sep = "\t",header = TRUE, row.names = 1)
-C2_2 <- read.csv("/media/helab/data3/min/TACIT/20231128_scRNA/Sample_CP23002914-ML_2cell-early2cell/04_umi/HTSeq.TPM.txt", sep = "\t",header = TRUE, row.names = 1)
-C4 <- read.csv("/media/helab/data3/min/TACIT/20231108_scRNA/s1820g01136_BJCH-20231106-L-01-2023-11-072024/4cell/04_umi/HTSeq.TPM.txt", sep = "\t",header = TRUE, row.names = 1)
-C8_1 <- read.csv("/media/helab/data3/min/TACIT/20231108_scRNA/s1820g01136_BJCH-20231106-L-01-2023-11-072024/8cell/04_umi/HTSeq.TPM.txt", sep = "\t",header = TRUE, row.names = 1)
-Morula_1 <- read.csv("/media/helab/data3/min/TACIT/20231108_scRNA/s1820g01136_BJCH-20231106-L-01-2023-11-072014/morula/04_umi/HTSeq.TPM.txt", sep = "\t",header = TRUE, row.names = 1)
-
-C8_M <- read.csv("/media/helab/data3/min/TACIT/20231108_scRNA/s1820g01136_BJCH-20231106-L-01-2023-11-072014/8cell_morula/04_umi/HTSeq.TPM.txt", sep = "\t",header = TRUE, row.names = 1)
-selected_columns <- grep("^CP23002316\\.ML_scRNA_3\\.8cell_2_combined_cell([1-9]|1[0-9]|2[0-9]|3[0-2])$", colnames(C8_M), value = TRUE)
-C8_2 <- C8_M[,selected_columns]
-Morula_2 <- C8_M[,-which(colnames(C8_M) %in% selected_columns)]
-new_column_names <- gsub("8cell", "morula", colnames(Morula_2))
-colnames(Morula_2) <- new_column_names
-
-RNA <- cbind(zygote, C2,C2_2, C4, C8_1, C8_2, Morula_1, Morula_2)
-
-blasto_1 <- read.csv("/media/helab/data3/min/TACIT/20231128_scRNA/Sample_CP23002915-ML_blasto-earlyblasto/04_umi/HTSeq.TPM.txt", sep = "\t",header = TRUE, row.names = 1)
-blasto_2 <- read.csv("/media/helab/data3/min/TACIT/20231208_scRNA/Sample_CP23003293-ML_E-earlyblasto/04_umi/HTSeq.TPM.txt", sep = "\t",header = TRUE, row.names = 1)
-blasto_3 <- read.csv("/media/helab/data3/min/TACIT/20231208_scRNA/Sample_CP23003294-ML_L-lateblasto/04_umi/HTSeq.TPM.txt", sep = "\t",header = TRUE, row.names = 1)
-
-RNA <- cbind(RNA, blasto_1, blasto_2, blasto_3)
-
-##### filter genes>3000 
-row_counts <- apply(RNA > 0, 2, sum)
-selected_columns <- names(row_counts[row_counts > 3000])
-RNA <- RNA[,selected_columns]
-RNA_data <- RNA
-############## Seurat ####################
 library(Seurat)#version 4.3.0
 library(SeuratObject)#version 4.1.3
 library(dplyr)
 set.seed(123)
 
-RNA <- CreateSeuratObject(counts = RNA_no_outlier, project = "RNA", min.cells = 30, min.features = 3000)
+RNA <- CreateSeuratObject(counts = RNA_counts, project = "RNA", min.cells = 30, min.features = 3000)
 RNA[["percent.mt"]] <- PercentageFeatureSet(RNA, pattern = "^MT-")
 pdf("all_RNA_no_outlier.pdf")
 VlnPlot(RNA, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 1)
@@ -70,33 +40,25 @@ label[,3] <- RNA@meta.data$seurat_clusters
 RNA@meta.data$group.ident <- as.factor(label[,2])
 RNA@meta.data$ID <- as.factor(label[,1])
 
-pdf("RNA_stage_no_outlier.pdf")
+pdf("RNA_stage.pdf")
 DimPlot(RNA, reduction = "umap", label = TRUE, pt.size = 2)
 DimPlot(object = RNA, reduction = "umap",group.by = "group.ident" ,label = TRUE, pt.size = 2)
 DimPlot(RNA, reduction = "pca", label = TRUE, pt.size = 2)
 DimPlot(object = RNA, reduction = "pca",group.by = "group.ident" ,label = TRUE, pt.size = 2)
 dev.off()
 
-###去除部分outlier，而后再跑一遍
-umap <- as.data.frame(RNA@reductions[["umap"]]@cell.embeddings)
-umap_1 <- umap[which(umap$UMAP_1 >0 & umap$UMAP_1 <5),]
-umap_1 <- umap_1[grep("morula|4cell|8cell|blasto", rownames(umap_1)),]
-outlier <- RNA_data[,(colnames(RNA_data) %in% rownames(umap_1))]
-row_counts <- apply(outlier > 0, 2, sum)
-RNA_no_outlier <- RNA_data[,!(colnames(RNA_data) %in% rownames(umap_1))]
-#########前面的再跑一遍###########
-
+# find markers
 RNA.markers <- FindAllMarkers(RNA, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
 RNA.markers %>%
   group_by(cluster) %>%
   top_n(n = 50, wt = avg_log2FC) -> top50
-pdf("stage_marker_heatmap_no_outlier.pdf")
+pdf("stage_marker_heatmap.pdf")
 DoHeatmap(RNA, features = top50$gene) + NoLegend()
 dev.off()
-saveRDS(RNA, file = "./all_RNA_no_outlier.rds")
+saveRDS(RNA, file = "./all_RNA.rds")
 
 #### reference scRNA-seq ####
-ref <- read.csv("/media/helab/data1/min/00_reference/mouse_embryo/genes/scRNA-seq_2014/GSE45719_scRNA.csv")
+ref <- read.csv("./scRNA-seq_2014/GSE45719_scRNA.csv")
 ref <- ref[!duplicated(ref$Gene_symbol),]
 rownames(ref) <- ref[,1]
 ref <- ref[,-1]
@@ -136,95 +98,28 @@ dev.off()
 
 saveRDS(ref, file = "./reference.rds")
 
-################################################################################################
-####################################### 合并一起 ###############################################
-row <- intersect(rownames(ref_tpm), rownames(RNA_no_outlier))
-ref_tpm_inte <- ref_tpm[row,]
-RNA_no_outlier_inte <- RNA_no_outlier[row,]
-all_data <- cbind(RNA_no_outlier_inte, ref_tpm_inte) ##把所有能检测到的基因直接合并，之后分群效果并不好，两种技术直接分开了。
-
-# RNA.markers %>%
-#   group_by(cluster) %>%
-#   top_n(n = 200, wt = avg_log2FC) -> top200
-# all_data <- all_data[top200$gene,]
-
-merge <- CreateSeuratObject(counts = all_data, project = "merge", min.cells = 20)
-merge[["percent.mt"]] <- PercentageFeatureSet(merge, pattern = "^MT-")
-pdf("merge_RNA.pdf")
-VlnPlot(merge, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 1)
-plot1 <- FeatureScatter(merge, feature1 = "nCount_RNA", feature2 = "percent.mt")
-plot2 <- FeatureScatter(merge, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
-plot1 
-plot2
-merge <- NormalizeData(merge)
-merge <- FindVariableFeatures(merge, nfeatures = 5000)
-merge <- ScaleData(merge, vars.to.regress = c("nFeature_RNA", "percent.mito","S.Score", "G2M.Score"))
-merge <- RunPCA(merge, npcs = 30)
-merge <- RunUMAP(merge, dims = 1:30, reduction = 'pca',n.neighbors = 100L)
-merge <- FindNeighbors(merge, dims = 1:30, reduction = "pca")
-merge <- FindClusters(merge, resolution = 0.5)
-DimPlot(merge, reduction = "umap", label = TRUE, pt.size = 2)
-DimPlot(merge, reduction = "pca", label = TRUE, pt.size = 2)
-dev.off()
-
-label <- rownames(as.data.frame(merge@active.ident))
-label <- as.data.frame(label)
-label[grep("zygote",label[,1]),2] <- "zygote"
-label[grep("2cell",label[,1]),2] <- "late2cell"
-label[grep("early2cell",label[,1]),2] <- "early2cell"
-label[grep("4cell",label[,1]),2] <- "4cell"
-label[grep("8cell",label[,1]),2] <- "8cell"
-label[grep("morula|16cell",label[,1]),2] <- "Morula"
-label[grep("earlyblast",label[,1]),2] <- "earlyblast"
-label[grep("midblast",label[,1]),2] <- "midblast"
-label[grep("lateblast",label[,1]),2] <- "lateblast"
-
-label[,3] <- merge@meta.data$seurat_clusters
-label[grep("CP",label[,1]),4] <- "this study"
-label[grep("CP",label[,1], invert = T),4] <- "reference"
-
-merge@meta.data$group.ident <- as.factor(label[,2])
-merge@meta.data$ID <- as.factor(label[,1])
-merge@meta.data$dataset <- as.factor(label[,4])
-
-pdf("merge_stage.pdf")
-DimPlot(merge, reduction = "umap", label = TRUE, pt.size = 2)
-DimPlot(object = merge, reduction = "umap",group.by = "orig.ident" ,label = TRUE, pt.size = 2)
-DimPlot(object = merge, reduction = "umap",group.by = "group.ident" ,label = TRUE, pt.size = 2)
-DimPlot(object = merge, reduction = "umap",group.by = "dataset" ,label = TRUE, pt.size = 2)
-DimPlot(merge, reduction = "pca", label = TRUE, pt.size = 2)
-DimPlot(object = merge, reduction = "pca",group.by = "orig.ident" ,label = TRUE, pt.size = 2)
-dev.off()
-
-
-##或者用merge直接来merge两个seurat对象
-#merge <- merge(RNA, y = ref, add.cell.ids = c("smart-seq3", "smart-seq2"), project = "embryo")
-
-
-####################################### integration ##############################################
+###################################### integration ##############################################
+merge <- merge(RNA, y = ref, add.cell.ids = c("smart-seq3", "smart-seq2"), project = "embryo")
 embryo.list <- SplitObject(merge, split.by = "dataset")
 embryo.list
 
-# 分别对两个数据集进行标准化并识别变量特征
+# normalization
 embryo.list <- lapply(X = embryo.list, FUN = function(x) {
   x <- NormalizeData(x)
   x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 5000)
 })
-# 选择跨数据集重复可变的特征进行整合
+# integration
 features <- SelectIntegrationFeatures(object.list = embryo.list)
 embryo.anchors <- FindIntegrationAnchors(object.list = embryo.list, anchor.features = features)
 embryo.combined <- IntegrateData(anchorset = embryo.anchors)
 
-#指定已校正的数据进行下游分析，注意未修改的原始数据仍在于 'RNA' assay中
 DefaultAssay(embryo.combined) <- "integrated"
-# 标准数据可视化和分类流程
 embryo.combined <- ScaleData(embryo.combined, verbose = FALSE)
 embryo.combined <- RunPCA(embryo.combined, npcs = 30, verbose = FALSE)
 embryo.combined <- RunUMAP(embryo.combined, reduction = "pca", dims = 1:30)
 embryo.combined <- FindNeighbors(embryo.combined, reduction = "pca", dims = 1:30)
 embryo.combined <- FindClusters(embryo.combined, resolution = 0.5)
 
-# 可视化
 pdf("integrate.pdf")
 DimPlot(embryo.combined, reduction = "umap", group.by = "dataset")
 DimPlot(embryo.combined, reduction = "umap", group.by = "group.ident")
@@ -258,21 +153,21 @@ saveRDS(embryo.combined, file = "./embryo.combined.rds")
 # dev.off()
 
 
-library(openxlsx)
+
 #################################### ZGA gene expression in early-2cells ############################
 RNA <- readRDS("./all_RNA_no_outlier.rds")
 RNA_count <- as.data.frame(RNA@assays[["RNA"]]@counts)
 RNA_count <- RNA_count[which(rowSums(RNA_count) >0),]
 toti <- read.csv("../totipotency.markers.csv", sep = ",", header = F)
 pluri<- read.csv("../pluripotency.markers.csv", sep = ",", header = F)
-ZGA <- read.xlsx("/media/helab/data1/min/00_reference/mouse_embryo/genes/ZGA/MajorZGA_genes.xlsx")
+ZGA <- read.xlsx("./MajorZGA_genes.xlsx")
 ZGA <- na.omit(ZGA$Gene)
 RNA_ZGA <- RNA_count[which(rownames(RNA_count) %in% ZGA),]
 RNA_toti <- RNA_count[which(rownames(RNA_count) %in% toti$V1),]
 RNA_pluri <- RNA_count[which(rownames(RNA_count) %in% pluri$V1),]
-RNA_ZGA <- colSums(RNA_ZGA)/620
-RNA_toti <- colSums(RNA_toti)/215
-RNA_pluri <- colSums(RNA_pluri)/38
+RNA_ZGA <- colSums(RNA_ZGA)/nrow(RNA_ZGA)
+RNA_toti <- colSums(RNA_toti)/nrow(RNA_toti)
+RNA_pluri <- colSums(RNA_pluri)/nrow(RNA_pluri)
 
 label <- data.frame(label=colnames(RNA_count))
 label[grep("zygote",label[,1]),2] <- "zygote"
@@ -295,17 +190,7 @@ ggplot(label,mapping = aes(x = V2, y = ZGA))+
   ggtitle("ZGA genes")+
   scale_fill_manual(values = c("#e8490f","#f18800","#e4ce00","#9ec417","#13a983","#44c1f0","#AC73EF", "#2A2AF4"))+
   theme(legend.position = "none")+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=15,hjust = 1,colour="black",family="Times",size=15), #设置x轴刻度标签的字体显示倾斜角度为15度，并向下调整1(hjust = 1)，字体簇为Times大小为20
-        axis.text.y=element_text(family="Times",size=15,face="plain"), #设置y轴刻度标签的字体簇，字体大小，字体样式为plain
-        axis.title.y=element_text(family="Times",size = 20,face="plain"), #设置y轴标题的字体属性
-        panel.border = element_blank(),axis.line = element_line(colour = "black",size=0.5), #去除默认填充的灰色，并将x=0轴和y=0轴加粗显示(size=1)
-        legend.text=element_text(face="italic", family="Times", colour="black",  #设置图例的子标题的字体属性
-                                 size=10),
-        legend.title=element_text(face="italic", family="Times", colour="black", #设置图例的总标题的字体属性
-                                  size=12),
-        panel.grid.major = element_blank(),   #不显示网格线
-        panel.grid.minor = element_blank())
+  theme_bw()
 dev.off()
 
 
