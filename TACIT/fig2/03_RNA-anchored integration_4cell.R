@@ -226,7 +226,7 @@ pdf("./RNA_4cell_pseudo.hcluster.pdf")
 plot(out.hclust)
 dev.off()
 
-############################################# H3K4me3 (for example) ####################################################
+############################################# H3K4me3 (as an example) ####################################################
 setwd("../h3k4me3")
 h3k4me3 <- readRDS("/media/helab/data1/min/02_tacit/03_early_stage/20230105_allStage_integration/h3k4me3/h3k4me3_allpeaks.rds")
 h3k4me3 <- subset(h3k4me3,cells = colnames(h3k4me3[,grep("4cell", h3k4me3@meta.data$group.ident)]))
