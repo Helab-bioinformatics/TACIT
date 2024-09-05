@@ -1,5 +1,5 @@
-#Data pre-treatment, initiated from bam files
-#Step1: convert bam files to bigwig files
+# Data preprocessing, initiated from bam files
+# Step1: convert bam files to bigwig files
 for i in *_rmdup_picard.bam
 do
 samtools index $i
@@ -14,5 +14,5 @@ res=$(printf "%.5f" `echo "scale=5;$num1/$num2"|bc`)
 bamCoverage --scaleFactor  $res -b  $i  -o  ./${base}.bw
 done
 
-#Step2: compute 10kb signals
+# Step2: compute 10kb signals
 multiBigwigSummary BED-file -b *bw  -out mm10_genome10kb_signals.results.npz --BED   mm10.10K.windows.bed --outRawCounts mm10_genome10kb_signals_readCount.tab 
