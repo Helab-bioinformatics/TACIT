@@ -2,7 +2,7 @@
 Follow these step-by-step instructions to train and test scDeepHIM:
 
 ### 1. Generate Count Matrices:
-Create read count matrices for histone modifications for each sample in the training group using the bamCoverage function (00_Data_pre-Treatment.sh) or an alternative method.
+Create read count matrices for histone modifications for each sample in the training group using the bamCoverage function (00_Data_preprocessing.sh) or an alternative method.
 ### 2. Prepare Input and Target Files:
 Partition the matrices into input files (H3K27ac, H3K27me3, H3K9me3) and target files (H3K4me1, H3K4me3, H3K36me3).
 Train the scDeepHIM models using profiles of six histone modifications, allocating 80% of the samples for training and 20% for evaluation.
