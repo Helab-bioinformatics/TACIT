@@ -109,8 +109,7 @@ activity.matrix <- CreateGeneActivityMatrix(peak.matrix = cotacit_count, annotat
 geneActivity <- as.matrix(activity.matrix)
 
 
-##########################################################################################################################
-#then the rownames of mat need to be transfered into gene Symbol
+#######################################  transfer the rowname of activity.matrix to gene Symbol ###################################################################################
 
 library(clusterProfiler)
 library(tidyr)
@@ -119,7 +118,6 @@ library(org.Mm.eg.db)
 library(openxlsx)
 library(org.Mm.eg.db)
 
-#了解各种geneid
 # eg2symbol=toTable(org.Mm.egSYMBOL)
 # eg2name=toTable(org.Mm.egGENENAME)
 # eg2ensembl=toTable(org.Mm.egENSEMBL)
