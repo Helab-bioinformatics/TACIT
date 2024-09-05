@@ -1,3 +1,6 @@
+
+
+
 ################################ state expression for Figure 2f ########################################
 
 setwd("/media/helab/data1/min/02_tacit/03_early_stage/20231229_allStage_integration/")
@@ -8,8 +11,6 @@ c4_1_exp <- read.csv("./03_chromHMM_4cell/4cell_1/4cell_1_all_state_expression.t
 c4_2_exp <- read.csv("./03_chromHMM_4cell/4cell_2/4cell_2_all_state_expression.txt" ,sep = "\t")
 c4_3_exp <- read.csv("./03_chromHMM_4cell/4cell_3/4cell_3_all_state_expression.txt" ,sep = "\t")
 c4_4_exp <- read.csv("./03_chromHMM_4cell/4cell_4/4cell_4_all_state_expression.txt" ,sep = "\t")
-
-
 
 ####### multivalent ############
 multi <- c2_1_exp[which(c2_1_exp$state == "E10"),]
@@ -98,17 +99,7 @@ ggplot(data=all,mapping = aes(x = group, y = exp))+
   #geom_violin(aes(fill = group), trim = FALSE) + 
   geom_boxplot(aes(fill = group),width = 0.6)+
   #ylim(0,14)+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=15,hjust = 1,colour="black",family="Times",size=15), #设置x轴刻度标签的字体显示倾斜角度为15度，并向下调整1(hjust = 1)，字体簇为Times大小为20
-        axis.text.y=element_text(family="Times",size=15,face="plain"), #设置y轴刻度标签的字体簇，字体大小，字体样式为plain
-        axis.title.y=element_text(family="Times",size = 20,face="plain"), #设置y轴标题的字体属性
-        panel.border = element_blank(),axis.line = element_line(colour = "black",size=0.5), #去除默认填充的灰色，并将x=0轴和y=0轴加粗显示(size=1)
-        legend.text=element_text(face="italic", family="Times", colour="black",  #设置图例的子标题的字体属性
-                                 size=10),
-        legend.title=element_text(face="italic", family="Times", colour="black", #设置图例的总标题的字体属性
-                                  size=12),
-        panel.grid.major = element_blank(),   #不显示网格线
-        panel.grid.minor = element_blank())  #不显示网格线
+  theme_bw()
 dev.off()
 
 
@@ -195,16 +186,6 @@ ggplot(data=all,mapping = aes(x = group, y = exp))+
   #geom_violin(aes(fill = group), trim = FALSE) + 
   geom_boxplot(aes(fill = group),width = 0.6)+
   ylim(0,15)+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=15,hjust = 1,colour="black",family="Times",size=15), #设置x轴刻度标签的字体显示倾斜角度为15度，并向下调整1(hjust = 1)，字体簇为Times大小为20
-        axis.text.y=element_text(family="Times",size=15,face="plain"), #设置y轴刻度标签的字体簇，字体大小，字体样式为plain
-        axis.title.y=element_text(family="Times",size = 20,face="plain"), #设置y轴标题的字体属性
-        panel.border = element_blank(),axis.line = element_line(colour = "black",size=0.5), #去除默认填充的灰色，并将x=0轴和y=0轴加粗显示(size=1)
-        legend.text=element_text(face="italic", family="Times", colour="black",  #设置图例的子标题的字体属性
-                                 size=10),
-        legend.title=element_text(face="italic", family="Times", colour="black", #设置图例的总标题的字体属性
-                                  size=12),
-        panel.grid.major = element_blank(),   #不显示网格线
-        panel.grid.minor = element_blank())  #不显示网格线
+  theme_bw()
 dev.off()
 
