@@ -2,6 +2,7 @@ rm(list = ls())
 Sys.setenv(R_MAX_NUM_DLLS=999) 
 options(stringsAsFactors = F) 
 
+######################################### h3k4me1 (as an example) #################################
 #cisTopic for countMatrix
 library(cisTopic)
 library(ggplot2)
