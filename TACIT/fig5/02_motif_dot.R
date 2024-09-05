@@ -1,6 +1,6 @@
 
 ######################################### ICM ##########################################
-setwd("/media/helab/data1/min/02_tacit/03_early_stage/20230105_allStage_integration/06_blasto_inte/03_scChromHMM/04_chromHMM_pseudo/downsampling/learnmodel_2kb/POSTERIOR/test/states/ICM")
+setwd("./test/states/ICM")
 
 library(tidyr)
 library(ggplot2)
