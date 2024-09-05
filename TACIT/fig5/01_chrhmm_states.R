@@ -83,7 +83,7 @@ all_mat <- apply(all_mat, 2, as.numeric)
 rownames(all_mat) <- row
 all_mat <- as.matrix(all_mat)
 all_mat <- all_mat[which(rowSds(all_mat) >0),]
-all_dat_2 <- all_mat[which(rowSums(all_mat == 0) <11),] #保留至少???3个细胞有信号的region
+all_dat_2 <- all_mat[which(rowSums(all_mat == 0) <11),] # filtering
 
 all_mat <- read.csv("./all_cells_states.txt", sep = " ")
 all_dat_3 <- all_mat[rownames(all_dat_2),]
@@ -165,12 +165,10 @@ plot(mtry_fit)#best ntree=10000
 plot(mtry_fit$err.rate)
 title(main = "use all diff bins", sub = "err=33.33%")
 
-#训练集自身测???
 train_predict <- predict(mtry_fit, train)
 compare_train <- table(train_predict, train$identity)
 compare_train
-sum(diag(compare_train)/sum(compare_train))#效果很好，拟合的分类模型返回来重新识别训练集数据时，甚至纠正了在拟合时的错误划分???
-#使用测试集评???
+sum(diag(compare_train)/sum(compare_train))
 test_predict <- predict(mtry_fit, test, type = "prob")
 predicts <- t(apply(test_predict, 1, function(v){v/sum(v)}))
 colnames(predicts) <- colnames(test_predict)
@@ -181,7 +179,7 @@ predicts$observed <- test$identity
 ROC <- pROC::roc(predicts$observed, as.numeric(predicts$ICM))
 plot(ROC, print.auc=TRUE)
 
-#筛选重要features
+#get important features
 importance_otu <- importance(mtry_fit)
 varImpPlot(mtry_fit)
 importance_otu <- as.data.frame(importance_otu)
@@ -190,32 +188,26 @@ head(importance_otu)
 #write.table(importance_otu, './randomForest/importance_otu_top1500.txt', sep = '\t', col.names = NA, quote = FALSE)
 #write.table(importance_otu[1:30, ], 'importance_otu_top30.txt', sep = '\t', col.names = NA, quote = FALSE)
 
-##交叉验证帮助选择特定数量??? OTUs
-#5 次重复十折交叉验???
+# cross-validation
 set.seed(123)
 otu_train.cv <- replicate(5, rfcv(train[-ncol(train)], train$identity, cv.fold = 10,step = 1.5), simplify = FALSE)
 otu_train.cv
-#提取验证结果绘图
 otu_train.cv <- data.frame(sapply(otu_train.cv, '[[', 'error.cv'))
 otu_train.cv$otus <- rownames(otu_train.cv)
 otu_train.cv <- reshape2::melt(otu_train.cv, id = 'otus')
 otu_train.cv$otus <- as.numeric(as.character(otu_train.cv$otus))
-#拟合线  图
+#
 library(ggplot2)
-library(splines)  #用于??? geom_smooth() 中添加拟合线，或者使??? geom_line() 替代 geom_smooth() 绘制普通折???
-#pdf("test.pdf")
+library(splines)  
+pdf("test.pdf")
 p <- ggplot(otu_train.cv, aes(otus, value)) +
   geom_smooth(se = FALSE,  method = 'glm', formula = y~ns(x, 6)) +
   theme(panel.grid = element_blank(), panel.background = element_rect(color = 'black', fill = 'transparent')) +
   labs(title = '',x = 'Number of OTUs', y = 'Cross-validation error')
 p
 dev.off()
-# #大约提取??? 30 个重要的 OTUs
-# p + geom_vline(xintercept = 30)
-# 
 
-##########根据交叉验证选择top 5000 features
-
+###
 all_dat_3_a <- all_dat_3_a[,rownames(importance_otu[1:600,])]
 all_dat_3_r <- all_dat_3_r[,rownames(importance_otu[1:180,])]
 
@@ -636,17 +628,7 @@ fre_ICM_1$cells <- factor(fre_ICM_1$cells, levels = c("X4cell_3", "X4cell_4", "X
 pdf("./test/ICM_lineage_state_ratio.pdf")
 ggplot( fre_ICM_1, aes( x = cells, weight = fre, fill = state))+
   geom_bar( position = "stack")+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=15,hjust = 1,colour="black",family="Times",size=15), #设置x轴刻度标签的字体显示倾斜角度为15度，并向下调整1(hjust = 1)，字体簇为Times大小为20
-        axis.text.y=element_text(family="Times",size=15,face="plain"), #设置y轴刻度标签的字体簇，字体大小，字体样式为plain
-        axis.title.y=element_text(family="Times",size = 20,face="plain"), #设置y轴标题的字体属性
-        panel.border = element_blank(),axis.line = element_line(colour = "black",size=0.5), #去除默认填充的灰色，并将x=0轴和y=0轴加粗显示(size=1)
-        legend.text=element_text(face="italic", family="Times", colour="black",  #设置图例的子标题的字体属性
-                                 size=10),
-        legend.title=element_text(face="italic", family="Times", colour="black", #设置图例的总标题的字体属性
-                                  size=12),
-        panel.grid.major = element_blank(),   #不显示网格线
-        panel.grid.minor = element_blank())  #不显示网格线
+  theme_bw()
 
 ggplot(fre_ICM_1, aes(x=cells, y=fre))+
   geom_smooth(aes(group=state), method = "loess", se = FALSE)+
@@ -671,29 +653,17 @@ fre_TE_1$cells <- factor(fre_TE_1$cells, levels = c("X4cell_1", "X8cell_3", "X8c
 pdf("./test/TE_lineage_state_ratio.pdf")
 ggplot( fre_TE_1, aes( x = cells, weight = fre, fill = state))+
   geom_bar( position = "stack")+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=15,hjust = 1,colour="black",family="Times",size=15), #设置x轴刻度标签的字体显示倾斜角度为15度，并向下调整1(hjust = 1)，字体簇为Times大小为20
-        axis.text.y=element_text(family="Times",size=15,face="plain"), #设置y轴刻度标签的字体簇，字体大小，字体样式为plain
-        axis.title.y=element_text(family="Times",size = 20,face="plain"), #设置y轴标题的字体属性
-        panel.border = element_blank(),axis.line = element_line(colour = "black",size=0.5), #去除默认填充的灰色，并将x=0轴和y=0轴加粗显示(size=1)
-        legend.text=element_text(face="italic", family="Times", colour="black",  #设置图例的子标题的字体属性
-                                 size=10),
-        legend.title=element_text(face="italic", family="Times", colour="black", #设置图例的总标题的字体属性
-                                  size=12),
-        panel.grid.major = element_blank(),   #不显示网格线
-        panel.grid.minor = element_blank())  #不显示网格线
+  theme_bw()
 
 ggplot(fre_TE_1, aes(x=cells, y=fre))+
   geom_smooth(aes(group=state), method = "loess", se = FALSE)+
   theme_bw()
 dev.off()
 write.table(fre_TE_1, "./test/TE_lineage_state_ratio.txt", sep = "\t", quote = F)
-
-
 save(all_dat_3, all_dat_3_a, all_dat_3_r, all_dat_3_select, cramer_matrix, m.kmeans, m.kmeans_new, mm10,mtry_fit, predict, all, ICM_specific, all_ICM,all_TE,TE_specific,file = "./test/20230413_chrhmm.Rdata")
 
 
-########################## differential analysis ####################
+########################## differential regions for calling TF motifs ####################
 ########### for TE ###########
 all_TE <- as.data.frame(all_TE)
 TE_4cell <- all_TE[,grep("4cell_1", colnames(all_TE))]
@@ -839,73 +809,3 @@ write.table(ICM_blasto_en[,c("V2", "V3", "V4")], "./test/states/ICM_blasto_enhan
 write.table(ICM_blasto_re[,c("V2", "V3", "V4")], "./test/states/ICM_blasto_repressive.bed", sep = "\t", quote = F, col.names = F, row.names = F)
 write.table(ICM_blasto_active[,c("V2", "V3", "V4")], "./test/states/ICM_blasto_active.bed", sep = "\t", quote = F, col.names = F, row.names = F)
 
-
-################################## only repressive regions ###############################
-setwd("/media/helab/data1/min/02_tacit/03_early_stage/20230105_allStage_integration/06_blasto_inte/03_scChromHMM/04_chromHMM_pseudo/downsampling/learnmodel_2kb/POSTERIOR/test")
-
-index <- sample(1:12, 3)#随机???3/10作为test，剩下为train
-train <- all_dat_3_r[-index,]
-test <- all_dat_3_r[index,]
-err<-as.numeric()
-set.seed(12)
-#options(expressions = 5e5)
-for(i in c(1:10)){
-  mtry_test <- randomForest(identity ~., data=train,ntree=10000,mtry=i)
-  err<- append( err, mean( mtry_test$err.rate ) )
-}
-mtry<-which.min(err)#mtry=6
-set.seed(123)
-mtry_fit_r <- randomForest(identity ~.,data = train, mtry=mtry, ntree=10000, importance=T, proximity=TRUE)
-mtry_fit_r #mtry=9, ntree=10000, OOB error=11.11%
-
-pdf("./train_20230605_repressive.pdf")
-plot(mtry_fit)#best ntree=10000
-plot(mtry_fit$err.rate)
-title(main = "use all diff bins", sub = "err=33.33%")
-
-#训练集自身测???
-train_predict <- predict(mtry_fit, train)
-compare_train <- table(train_predict, train$identity)
-compare_train
-sum(diag(compare_train)/sum(compare_train))#效果很好，拟合的分类模型返回来重新识别训练集数据时，甚至纠正了在拟合时的错误划分???
-#使用测试集评???
-test_predict <- predict(mtry_fit, test, type = "prob")
-predicts <- t(apply(test_predict, 1, function(v){v/sum(v)}))
-colnames(predicts) <- colnames(test_predict)
-predicts <- data.frame(predicts, check.names = F)
-predicts$predicted <- apply(predicts, 1, function(v){names(v)[max(v) == v]})
-predicts$observed <- test$identity
-#ROC
-ROC <- pROC::roc(predicts$observed, as.numeric(predicts$ICM))
-plot(ROC, print.auc=TRUE)
-dev.off()
-
-
-library(randomForest)
-library(pROC)
-library(ROCR)
-library(matrixStats)
-library(tidyr)
-set.seed(12)
-
-pre_dat <- read.csv("/media/helab/data1/min/02_tacit/03_early_stage/20230105_allStage_integration/06_blasto_inte/03_scChromHMM/05_predict_pseudo/downsampling/learnmodel_2kb/POSTERIOR/test/all_cells_states.txt", sep = " ")
-pre_dat <- pre_dat[colnames(all_dat_3_r)[1:180],]
-pre_dat[pre_dat=="E1"] <- 1
-pre_dat[pre_dat=="E2"] <- 1
-pre_dat[pre_dat=="E3"] <- 2
-pre_dat[pre_dat=="E4"] <- 2
-pre_dat[pre_dat=="E5"] <- 2
-pre_dat[pre_dat=="E6"] <- 2
-pre_dat[pre_dat=="E7"] <- 5
-pre_dat[pre_dat=="E8"] <- 3
-pre_dat[pre_dat=="E9"] <- 3
-pre_dat[pre_dat=="E10"] <- 4
-pre_dat[pre_dat=="E11"] <- 4
-pre_dat[pre_dat=="E12"] <- 5
-
-pre_dat <- t(pre_dat)
-predict <- predict(mtry_fit_r,pre_dat, type = "prob")
-predict <- as.data.frame(predict)
-
-predict[which(predict$ICM>0.6),3] <- "ICM"
-predict[which(predict$TE>0.6),3] <- "TE"
