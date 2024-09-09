@@ -8,12 +8,12 @@ import time
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-data_path = '/gpfs/share/home/t2406041101/xubin/20240831_new/train_set'
-data_path2 = '/gpfs/share/home/t2406041101/xubin/20240831_new/target_set'
-data_path3 = '/gpfs/share/home/t2406041101/xubin/20240831_new/train_set_1'
-data_path4 = '/gpfs/share/home/t2406041101/xubin/20240831_new/target_set_1'
-data_path5 = '/gpfs/share/home/t2406041101/xubin/20240831_new/train_set_2'
-data_path6 = '/gpfs/share/home/t2406041101/xubin/20240831_new/target_set_2'
+data_path = '/path1/input_training'
+data_path2 = '/path2/output_training'
+data_path3 = '/path3/input_testing'
+data_path4 = '/path4/output_testing'
+data_path5 = '/path5/input_validation'
+data_path6 = '/path6/output_validation'
 
 def load_data(input_paths, target_paths):
     input_data, target_data = [], []
@@ -100,7 +100,7 @@ test2_losses = []
 test2_correlations = []
 
 
-log_file = '20240418_training_log_cnn.txt'
+log_file = 'Training_log_cnn.txt'
 
 
 total_start_time = time.time()
@@ -183,7 +183,7 @@ with open('training_summary_cnn.txt', 'w') as summary_file:
     summary_file.write(f'Max GPU Memory Allocated: {gpu_max_memory_allocated:.2f} MB\n')
 
 
-torch.save(model, '20240809_save_cnn.pt')
+torch.save(model, 'Save_cnn.pt')
 
 
 fig, axs = plt.subplots(2, 1, figsize=(8, 12))
@@ -207,5 +207,5 @@ axs[1].set_title('Correlation')
 axs[1].legend()
 
 plt.tight_layout()
-plt.savefig('20240809_training_plots_cnn.svg')
+plt.savefig('Training_plots_cnn.svg')
 plt.show()
