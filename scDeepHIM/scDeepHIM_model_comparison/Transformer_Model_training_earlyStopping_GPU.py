@@ -5,23 +5,23 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import time
-import torch.cuda.amp as amp  # Mixed precision training
+import torch.cuda.amp as amp  
 
-# 检查 GPU 是否可用
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-# 设置数据目录
-data_path = '/gpfs/share/home/t2406041101/xubin/20240831_new/train_set'
-data_path2 = '/gpfs/share/home/t2406041101/xubin/20240831_new/target_set'
-data_path3 = '/gpfs/share/home/t2406041101/xubin/20240831_new/train_set_1'
-data_path4 = '/gpfs/share/home/t2406041101/xubin/20240831_new/target_set_1'
-data_path5 = '/gpfs/share/home/t2406041101/xubin/20240831_new/train_set_2'
-data_path6 = '/gpfs/share/home/t2406041101/xubin/20240831_new/target_set_2'
 
-# 加载数据(traing group)
+data_path = '/path1/input_training'
+data_path2 = '/path2/output_training'
+data_path3 = '/path3/input_testing'
+data_path4 = '/path4/output_testing'
+data_path5 = '/path5/input_validation'
+data_path6 = '/path6/output_validation'
+
+
 input_data = []
 target_data = []
-for i in range(1, 128):  # 加载3套数据
+for i in range(1, 128):  
     input_file = os.path.join(data_path, f'input_matrix_{i}.txt')
     target_file = os.path.join(data_path2, f'output_matrix_{i}.txt')
     
@@ -34,14 +34,14 @@ for i in range(1, 128):  # 加载3套数据
 input_data = np.array(input_data)
 target_data = np.array(target_data)
 
-# 将数据转换为张量并移动到 GPU
+
 input_data = torch.tensor(input_data, dtype=torch.float32).to(device)
 target_data = torch.tensor(target_data, dtype=torch.float32).to(device)
 
-# 加载数据(testing group)
+
 input_data1 = []
 target_data1 = []
-for i in range(1, 32):  # 加载3套数据
+for i in range(1, 32):  
     input_file1 = os.path.join(data_path3, f'input_matrix_{i}.txt')
     target_file1 = os.path.join(data_path4, f'output_matrix_{i}.txt')
     
@@ -57,10 +57,10 @@ target_data1 = np.array(target_data1)
 input_data1 = torch.tensor(input_data1, dtype=torch.float32).to(device)
 target_data1 = torch.tensor(target_data1, dtype=torch.float32).to(device)
 
-# 加载数据(testing group2)
+
 input_data2 = []
 target_data2 = []
-for i in range(1, 6):  # 加载3套数据
+for i in range(1, 6):  
     input_file2 = os.path.join(data_path5, f'input_matrix_{i}.txt')
     target_file2 = os.path.join(data_path6, f'output_matrix_{i}.txt')
     
@@ -76,7 +76,7 @@ target_data2 = np.array(target_data2)
 input_data2 = torch.tensor(input_data2, dtype=torch.float32).to(device)
 target_data2 = torch.tensor(target_data2, dtype=torch.float32).to(device)
 
-# 初始化记录损失和相关性的列表
+
 losses = []
 test_losses = []
 test2_losses = []
@@ -97,46 +97,46 @@ class TransformerModel(nn.Module):
         self.dropout = nn.Dropout(p=dropout)
 
     def forward(self, x):
-        batch_size, channels, seq_length = x.size()  # 保持输入的原始三维形状
-        x = x.permute(0, 2, 1)  # 调整形状为 (batch_size, seq_length, channels)
+        batch_size, channels, seq_length = x.size()  
+        x = x.permute(0, 2, 1)  
         x = self.input_linear(x)
         
-        # 调整位置编码的形状以匹配输入
+
         pos_encoding = self.positional_encoding[:, :seq_length, :]
         
         x += pos_encoding
         x = self.dropout(x)
         x = self.transformer_encoder(x)
         x = self.output_linear(x)
-        x = x.permute(0, 2, 1)  # 调整回 (batch_size, channels, seq_length)
+        x = x.permute(0, 2, 1)  
         x = self.leaky_relu(x)
         return x
 
 model = TransformerModel().to(device)
 
-# 定义损失函数和优化器
+
 criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=0.005)
 
-# 使用混合精度训练
+
 scaler = amp.GradScaler()
 
-# 文件路径，用于保存时间和内存记录
-log_file = '20240418_training_log.txt'
 
-# 记录训练的开始时间
+log_file = 'Training_log.txt'
+
+
 total_start_time = time.time()
 
-# Early Stopping 参数
+
 patience = 50
 delta = 0.01
 best_loss = float('inf')
 counter = 0
 early_stop = False
 
-# 训练模型
+
 num_epochs = 1000
-chunk_size = 10000  # 分块处理输入数据，每次处理 10000 个位置
+chunk_size = 10000  
 
 with open(log_file, 'w') as f:
     for epoch in range(num_epochs):
@@ -144,7 +144,7 @@ with open(log_file, 'w') as f:
             print(f'Early stopping at epoch {epoch+1}')
             break
         
-        start_time = time.time()  # 开始时间记录
+        start_time = time.time()  
         
         model.train()
         optimizer.zero_grad()
@@ -155,7 +155,7 @@ with open(log_file, 'w') as f:
             input_chunk = input_data[:, :, start:end]
             target_chunk = target_data[:, :, start:end]
             
-            # 使用混合精度训练
+
             with amp.autocast():
                 outputs = model(input_chunk)
                 loss = criterion(outputs, target_chunk)
@@ -166,10 +166,10 @@ with open(log_file, 'w') as f:
         scaler.step(optimizer)
         scaler.update()
         
-        avg_loss = total_loss / (input_data.size(2) // chunk_size)  # 平均损失
+        avg_loss = total_loss / (input_data.size(2) // chunk_size)  
         losses.append(avg_loss)
 
-        # 评估训练集上的相关性
+
         with torch.no_grad():
             train_outputs = model(input_data)
             train_output_array = train_outputs.cpu().numpy().flatten()
@@ -177,7 +177,7 @@ with open(log_file, 'w') as f:
             train_correlation = np.corrcoef(train_output_array, train_target_array)[0, 1]
             correlations.append(train_correlation)
 
-        # 测试集1上的评估
+
         with torch.no_grad():
             test_loss1 = 0
             for start in range(0, input_data1.size(2), chunk_size):
@@ -192,13 +192,13 @@ with open(log_file, 'w') as f:
             test_loss1 /= (input_data1.size(2) // chunk_size)
             test_losses.append(test_loss1)
             
-            # 计算相关性
+
             output_array = test_outputs.cpu().numpy().flatten()
             target_array = target_chunk.cpu().numpy().flatten()
             correlation1 = np.corrcoef(output_array, target_array)[0, 1]
             test_correlations.append(correlation1)
         
-        # 测试集2上的评估
+
         with torch.no_grad():
             test_loss2 = 0
             for start in range(0, input_data2.size(2), chunk_size):
@@ -213,17 +213,17 @@ with open(log_file, 'w') as f:
             test_loss2 /= (input_data2.size(2) // chunk_size)
             test2_losses.append(test_loss2)
             
-            # 计算相关性
+
             output_array2 = test_outputs.cpu().numpy().flatten()
             target_array2 = target_chunk.cpu().numpy().flatten()
             correlation2 = np.corrcoef(output_array2, target_array2)[0, 1]
             test2_correlations.append(correlation2)
 
-        # 记录每个 epoch 的时间和 GPU 内存使用情况
-        end_time = time.time()  # 结束时间记录
+
+        end_time = time.time()  
         epoch_time = end_time - start_time
-        gpu_memory_allocated = torch.cuda.memory_allocated(device) / (1024 ** 2)  # 转换为MB
-        gpu_max_memory_allocated = torch.cuda.max_memory_allocated(device) / (1024 ** 2)  # 转换为MB
+        gpu_memory_allocated = torch.cuda.memory_allocated(device) / (1024 ** 2)  
+        gpu_max_memory_allocated = torch.cuda.max_memory_allocated(device) / (1024 ** 2)  
 
         f.write(f'Epoch [{epoch+1}/{num_epochs}], Loss: {avg_loss:.4f}, Train Correlation: {train_correlation:.4f}, '
                 f'Test Loss1: {test_loss1:.4f}, Test Correlation1: {correlation1:.4f}, '
@@ -236,7 +236,7 @@ with open(log_file, 'w') as f:
                   f'Test Loss2: {test_loss2:.4f}, Test Correlation2: {correlation2:.4f}, '
                   f'Time: {epoch_time:.2f}s, GPU Memory: {gpu_memory_allocated:.2f}MB, Max GPU Memory: {gpu_max_memory_allocated:.2f}MB')
 
-        # Early Stopping 检查
+
         if avg_loss < best_loss - delta:
             best_loss = avg_loss
             counter = 0
@@ -245,22 +245,22 @@ with open(log_file, 'w') as f:
             if counter >= patience:
                 early_stop = True
 
-# 记录训练的结束时间
+
 total_end_time = time.time()
 total_training_time = total_end_time - total_start_time
 
-# 保存训练时间和最大GPU内存使用
+
 with open('training_summary_transformer.txt', 'w') as summary_file:
     summary_file.write(f'Total Training Time: {total_training_time:.2f} seconds\n')
     summary_file.write(f'Max GPU Memory Allocated: {gpu_max_memory_allocated:.2f} MB\n')
 
-# 保存模型
-torch.save(model, '20240809_save_3layers_1000echo_transformer.pt')
 
-# 绘图
+torch.save(model, 'Save_transformer.pt')
+
+
 fig, axs = plt.subplots(2, 1, figsize=(8, 12))
 
-# 可视化损失变化
+
 axs[0].plot(losses, label='Training Loss')
 axs[0].plot(test_losses, label='Testing Loss1')
 axs[0].plot(test2_losses, label='Testing Loss2')
@@ -269,7 +269,7 @@ axs[0].set_ylabel('Loss')
 axs[0].set_title('Training and Testing Loss')
 axs[0].legend()
 
-# 可视化相关性变化
+
 axs[1].plot(correlations, label='Training Correlation')
 axs[1].plot(test_correlations, label='Test Correlation1')
 axs[1].plot(test2_correlations, label='Test Correlation2')
@@ -279,5 +279,5 @@ axs[1].set_title('Correlation')
 axs[1].legend()
 
 plt.tight_layout()
-plt.savefig('20240809_training_plots_3layers_1000echo_transformer.svg')
+plt.savefig('Training_plots_transformer.svg')
 plt.show()
