@@ -7,10 +7,8 @@ import time
 import matplotlib.pyplot as plt
 from torch.cuda import memory_allocated, max_memory_allocated, reset_max_memory_allocated
 
-# Set device to GPU if available
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Define the Auto-encoder model
 class AutoEncoder(nn.Module):
     def __init__(self):
         super(AutoEncoder, self).__init__()
@@ -54,7 +52,7 @@ class AutoEncoder(nn.Module):
         x = x.view(-1, 3, 273119)
         return x
 
-# Load data
+
 def load_data(data_paths, start_idx, end_idx):
     input_data, target_data = [], []
     for i in range(start_idx, end_idx):
@@ -69,19 +67,19 @@ def load_data(data_paths, start_idx, end_idx):
     return input_data, target_data
 
 data_paths = [
-    '/gpfs/share/home/t2406041101/xubin/20240831_new/train_set',
-    '/gpfs/share/home/t2406041101/xubin/20240831_new/target_set',
-    '/gpfs/share/home/t2406041101/xubin/20240831_new/train_set_1',
-    '/gpfs/share/home/t2406041101/xubin/20240831_new/target_set_1',
-    '/gpfs/share/home/t2406041101/xubin/20240831_new/train_set_2',
-    '/gpfs/share/home/t2406041101/xubin/20240831_new/target_set_2'
+    '/path1/input_training',
+    '/path2/output_training',
+    '/path3/input_testing',
+    '/path4/output_testing',
+    '/path5/input_validation',
+    '/path6/output_validation'
 ]
 
 input_data, target_data = load_data(data_paths, 1, 128)
 input_data1, target_data1 = load_data(data_paths[2:], 1, 32)
 input_data2, target_data2 = load_data(data_paths[4:], 1, 6)
 
-# Define Early Stopping class
+
 class EarlyStopping:
     def __init__(self, patience=50, delta=0.01):
         self.patience = patience
@@ -99,12 +97,12 @@ class EarlyStopping:
             if self.counter >= self.patience:
                 self.early_stop = True
 
-# Initialize the model, loss function, and optimizer
+
 model = AutoEncoder().to(device)
 criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=0.005)
 
-# Training settings
+
 num_epochs = 1000
 losses = []
 correlations = []
@@ -113,14 +111,14 @@ test_correlations = []
 test2_losses = []
 test2_correlations = []
 
-# GPU memory and time tracking
+
 gpu_memory_log = []
 start_time = time.time()
 
-# Initialize Early Stopping
+
 early_stopping = EarlyStopping(patience=50, delta=0.01)
 
-# Training loop
+
 for epoch in range(num_epochs):
     model.train()
     outputs = model(input_data)
@@ -138,7 +136,7 @@ for epoch in range(num_epochs):
         correlation = np.corrcoef(output_array, target_array)[0, 1]
         correlations.append(correlation)
 
-    # Validation on test set 1
+
     with torch.no_grad():
         model.eval()
         test_outputs = model(input_data1)
@@ -149,7 +147,7 @@ for epoch in range(num_epochs):
         test_losses.append(test_loss.item())
         test_correlations.append(test_correlation)
 
-    # Validation on test set 2
+
     with torch.no_grad():
         test_outputs2 = model(input_data2)
         test2_loss = criterion(test_outputs2, target_data2)
@@ -168,16 +166,14 @@ for epoch in range(num_epochs):
               f'Test2 Loss: {test2_loss.item():.4f}, Test2 Correlation: {test2_correlation:.4f}, '
               f'GPU Memory: {current_memory / 1024**2:.2f} MB')
 
-    # Check Early Stopping
+
     early_stopping(loss.item())
     if early_stopping.early_stop:
         print("Early stopping triggered.")
         break
 
-# Save the model
-torch.save(model.state_dict(), 'autoencoder_model_earlyStopping.pt')
+torch.save(model.state_dict(), 'autoencoder_model.pt')
 
-# Save GPU memory and time log
 end_time = time.time()
 total_time = end_time - start_time
 
@@ -186,7 +182,6 @@ with open('gpu_memory_time_log.txt', 'w') as f:
     f.write("GPU Memory Usage per Epoch (MB):\n")
     f.write('\n'.join([f"{mem / 1024**2:.2f}" for mem in gpu_memory_log]))
 
-# Plot losses and correlations
 fig, axs = plt.subplots(2, 1, figsize=(8, 12))
 
 axs[0].plot(losses, label='Training Loss')
@@ -206,5 +201,5 @@ axs[1].set_title('Correlation')
 axs[1].legend()
 
 plt.tight_layout()
-plt.savefig('autoencoder_training_plots_earlyStopping.svg')
+plt.savefig('autoencoder_training_plots.svg')
 plt.show()
