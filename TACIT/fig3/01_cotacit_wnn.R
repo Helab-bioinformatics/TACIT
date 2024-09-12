@@ -32,7 +32,7 @@ h3k4me3 <- RunUMAP(
   object = h3k4me3,
   reduction = 'lsi',
   dims = c(2:20)
-)#或可调试reduction
+)
 h3k4me3 <- FindNeighbors(
   object = h3k4me3,
   reduction = 'lsi',
@@ -43,7 +43,7 @@ h3k4me3 <- FindClusters(
   algorithm = 3,
   resolution = 0.8,
   verbose = FALSE
-)#或可调试reduction和algorithm
+)
 DimPlot(object = h3k4me3, label = TRUE, pt.size = 2) + NoLegend()
 dev.off()
 
