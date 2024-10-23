@@ -6,8 +6,8 @@
 Use tacit.sh to analyze raw sequencing data, including mapping to the mm10 reference genome and removing PCR duplicates.
 
 ### Processing CoTACIT data
-1. Split raw sequening data for each histone modification based on T5 and T7 barcodes with scripts in the CoTACIT folder.
-2. Analyze the splited sequencing data for each histone modification using tacit.sh.
+1. Split raw sequencing data for each histone modification based on T5 and T7 barcodes with scripts in the CoTACIT folder.
+2. Analyze the split sequencing data for each histone modification using tacit.sh.
 
 ### Processing scRNA-seq data
 1. Split raw sequening data for each single cell based on oligo dT barcodes with scripts in the scRNA-seq/00_split_single_cells folder.
@@ -21,7 +21,7 @@ Use tacit.sh to analyze raw sequencing data, including mapping to the mm10 refer
 ### ChromHMM analyses
 1. ChromHMM manual: https://ernstlab.biolchem.ucla.edu/ChromHMM/
 2. Filter out all reads from mitochondrial DNA to reduce noise and interference.
-3. For Fig.4, all ChromHMM model and emission probabilities txt file for synthetic cells are available in the fig4/data folder. And the genome-wide chromatin states annotation at a 200-kb resolution for all cells are provided. Detailed scripts are located in the fig4 folder.
-4. For Fig.5, the forward-backward algorithm is used to learn the posterior probability distribution for all synthetic cells, with the model txt file provided in the fig5/data folder. Genome-wide chromatin state annotations at a 2000-kb resolution for all cells are also included. Detailed scripts are located in the fig5 folder.
+3. For Fig.4, all ChromHMM model and emission probabilities txt file for synthetic cells are available in the fig4/data folder. And genome-wide chromatin state annotations at a 200-kb resolution for all cells are provided. Detailed scripts are located in the fig4 folder.
+4. For Fig.5, the forward-backward algorithm is used to learn the posterior probability distribution for all synthetic cells, with the model text file provided in the fig5/data folder. Genome-wide chromatin state annotations at a 2000-kb resolution for all cells are also included. Detailed scripts are located in the `fig5` folder.
 
 ## Step-by-step codes for reproducing each main figure are available in their respective subfolders.
