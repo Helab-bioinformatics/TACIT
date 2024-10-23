@@ -10,8 +10,8 @@ tacit.sh - a script for analyzing TACIT data incuding mapping to mm10 reference 
 2. Analyze sequencing data for each histone modification using tacit.sh.
 
 ### Processing scRNA-seq data
-1. Split raw sequening data for each single cell based on oligo dT barcodes, with scripts in the scRNA/00_split_single_cells folder.
-2. Analyze sequencing data including cutting adaptor, mapping to mm10 reference genome, and calculating TPM, with scripts in the scRNA/01_qc folder.
+1. Split raw sequening data for each single cell based on oligo dT barcodes, with scripts in the scRNA-seq/00_split_single_cells folder.
+2. Analyze sequencing data including cutting adaptor, mapping to mm10 reference genome, and calculating TPM, with scripts in the scRNA-seq/01_qc folder.
 
 ### Integration analyses
 1. Multimodality integration with scRNA-seq as anchors follows the Seurat V4 anchoring workflow: https://satijalab.org/seurat/. Detailed scripts located in fig2/ folder.
