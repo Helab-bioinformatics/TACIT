@@ -24,4 +24,4 @@ tacit.sh - a script for analyzing TACIT data incuding mapping to mm10 reference 
 3. For Fig.4, all ChromHMM model and emission probabilities txt file for synthetic cells are listed in chromhmm/toti folder. And the genome-wide chromatin states annotation at a 200-kb resolution for all cells are provided. Detailed scripts located in fig4/ folder.
 4. For Fig.5, the forward-backward algorithm is used to learn the posterior probability distribution for all synthetic cells, with a model txt file provided in the chromhmm/ICM_TE folder. And the genome-wide chromatin states annotation at a 2000-kb resolution for all cells are also provided. Detailed scripts located in fig5/ folder.
 
-### Step-by-step codes for data reproduction of each main figures are located in subfolders.
+## Step-by-step codes for data reproduction of each main figures are located in subfolders.
