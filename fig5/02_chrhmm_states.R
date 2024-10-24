@@ -145,7 +145,7 @@ set.seed(12)
 
 all_dat_3_select <- as.data.frame(t(all_dat_3_select))
 all_dat_3_select$identity <- as.factor(c(rep("ICM", 6), rep("TE", 6)))
-index <- sample(1:12, 3)#随机???3/10作为test，剩下为train
+index <- sample(1:12, 3)
 train <- all_dat_3_select[-index,]
 test <- all_dat_3_select[index,]
 err<-as.numeric()
