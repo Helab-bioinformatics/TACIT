@@ -15,7 +15,7 @@ Use tacit.sh in the `TACIT` folder to analyze raw sequencing data, including map
 
 ### Integration analyses
 1. Multimodality integration with scRNA-seq as anchors follows the Seurat V4 anchoring workflow: https://satijalab.org/seurat/. Detailed scripts are located in the `fig2` folder.
-2. Pipeline for WNN analysis: https://satijalab.org/seurat/articles/weighted_nearest_neighbor_analysis. Detailed scripts are also located in the `fig2` and `fig3` folder.
+2. Pipeline for WNN analysis: https://satijalab.org/seurat/articles/weighted_nearest_neighbor_analysis. Detailed scripts are located in the `fig2` and `fig3` folder.
 
 ### ChromHMM analyses
 1. ChromHMM manual: https://ernstlab.biolchem.ucla.edu/ChromHMM/
