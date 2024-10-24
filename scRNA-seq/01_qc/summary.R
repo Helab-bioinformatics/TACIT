@@ -48,7 +48,7 @@ count <- read.table("./04_umi/HTSeq.count.txt",header=T,row.names=1,sep="\t")
 #delete.index <- c(grep("feature",rownames(count)),grep("ambiguous",rownames(count)),grep("alignment",rownames(count)),grep("aQual",rownames(count)),grep("aligned",rownames(count))) #delete __no_feature	__ambiguous	__too_low_aQual	__not_aligned __alignment_not_unique
 #count <- count[-delete.index,]
 colnames(count)[1:5]
-####R读文件名的时候，有时会把"-"读成".",会影响文件名的sort，因此要检查文件名
+####R
 colnames(count) <- gsub("[.]","-",colnames(count))
 count <- count[,mixedsort(colnames(count),decreasing=F)]
 colnames(count)[1:5]
