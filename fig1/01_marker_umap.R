@@ -54,7 +54,7 @@ h3k4me1 <- RunUMAP(
   object = h3k4me1,
   reduction = 'lsi',
   dims = c(2:15)
-)#或可调试reduction
+)
 h3k4me1 <- FindNeighbors(
   object = h3k4me1,
   reduction = 'lsi',
@@ -65,7 +65,7 @@ h3k4me1 <- FindClusters(
   algorithm = 1,
   resolution = 0.5,
   verbose = FALSE
-)#或可调试reduction和algorithm
+)
 DimPlot(object = h3k4me1, label = TRUE, pt.size = 2) + NoLegend()
 
 label <- rownames(as.data.frame(h3k4me1@active.ident))
